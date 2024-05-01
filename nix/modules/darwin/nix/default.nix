@@ -1,4 +1,4 @@
-{ options, config, pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 let cfg = config.vlib.nix;
 in {

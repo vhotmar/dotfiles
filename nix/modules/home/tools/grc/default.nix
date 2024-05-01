@@ -1,6 +1,5 @@
-
-
 { config, pkgs, lib, ... }:
+
 with lib;
 let cfg = config.vlib.tools.grc;
 in {
@@ -14,5 +13,5 @@ in {
     };
   };
 
-  config = mkIf cfg.enable { home.packages = with pkgs; [ cfg.package ]; };
+  config = mkIf cfg.enable { home.packages = [ cfg.package ]; };
 }

@@ -1,4 +1,4 @@
-{ lib, config, pkgs, inputs, ... }:
+{ lib, config, pkgs, ... }:
 
 # Copy from https://github.com/nix-community/home-manager/blob/2af7c78b7bb9cf18406a193eba13ef9f99388f49/modules/services/gpg-agent.nix
 # basically using all of hte options settings except vlib.security.gpg.enable with all the settings from services.gpg-agent

@@ -1,8 +1,7 @@
-{ lib, config, ... }:
+{ lib, ... }:
 
 with lib;
-let cfg = config.vlib.user;
-in {
+{
   options.vlib.user = with types; {
     name = mkOption {
       type = str;

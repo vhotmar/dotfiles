@@ -1,8 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
+
 with lib;
-let cfg = config.vlib.tools.btop;
+let cfg = config.vlib.cli-apps.btop;
 in {
-  options.vlib.tools.btop = { enable = mkEnableOption "btop"; };
+  options.vlib.cli-apps.btop = { enable = mkEnableOption "btop"; };
 
   config = mkIf cfg.enable {
     vlib = {

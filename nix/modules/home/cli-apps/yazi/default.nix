@@ -1,9 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 with lib;
-let cfg = config.vlib.tools.yazi;
+let cfg = config.vlib.cli-apps.yazi;
 in {
-  options.vlib.tools.yazi = { enable = mkEnableOption "yazi"; };
+  options.vlib.cli-apps.yazi = { enable = mkEnableOption "yazi"; };
 
   config = mkIf cfg.enable {
     vlib = {

@@ -1,9 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 with lib;
-let cfg = config.vlib.tools.lazygit;
+let cfg = config.vlib.cli-apps.lazygit;
 in {
-  options.vlib.tools.lazygit = { enable = mkEnableOption "lazygit"; };
+  options.vlib.cli-apps.lazygit = { enable = mkEnableOption "lazygit"; };
 
   config = mkIf cfg.enable {
     vlib = {

@@ -6,10 +6,7 @@ let
   user = config.vlib.user;
 in {
   options.vlib.tools.git = with types; {
-    enable = mkEnableOption {
-      default = false;
-      description = "Enable the Git tooling.";
-    };
+    enable = mkEnableOption "git" // { enable = true; };
 
     userName = mkOption {
       type = str;

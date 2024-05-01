@@ -1,8 +1,8 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 with lib;
-let cfg = config.vlib.tools.alacritty;
+let cfg = config.vlib.apps.alacritty;
 in {
-  options.vlib.tools.alacritty = { enable = mkEnableOption "alacritty"; };
+  options.vlib.apps.alacritty = { enable = mkEnableOption "alacritty"; };
 
   config = mkIf cfg.enable {
     vlib = {

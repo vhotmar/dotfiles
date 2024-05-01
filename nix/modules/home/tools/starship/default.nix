@@ -1,4 +1,5 @@
 { lib, config, ... }:
+
 with lib;
 let cfg = config.vlib.tools.starship;
 in {

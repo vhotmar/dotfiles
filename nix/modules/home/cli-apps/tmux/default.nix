@@ -1,9 +1,9 @@
 { config, pkgs, lib, ... }:
 
 with lib;
-let cfg = config.vlib.tools.tmux;
+let cfg = config.vlib.cli-apps.tmux;
 in {
-  options.vlib.tools.tmux = { enable = mkEnableOption "tmux"; };
+  options.vlib.cli-apps.tmux = { enable = mkEnableOption "tmux"; };
 
   config = mkIf cfg.enable {
     vlib = {

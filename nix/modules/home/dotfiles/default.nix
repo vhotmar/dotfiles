@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 
 with lib;
 let cfg = config.vlib.dotfiles;
@@ -20,10 +20,22 @@ in {
       path = "main/dotfiles";
     };
 
+    home.mutableFile."dotfiles-private" = {
+      url = "git+ssh://git@github.com/vhotmar/dotfiles-private";
+      type = "git";
+      path = "main/dotfiles-private";
+
+    };
+
     home.sessionPath = [
       "${
         config.lib.file.mkOutOfStoreSymlink
         config.home.mutableFile."dotfiles".path
+      }/.local/bin"
+
+      "${
+        config.lib.file.mkOutOfStoreSymlink
+        config.home.mutableFile."dotfiles-private".path
       }/.local/bin"
     ];
 

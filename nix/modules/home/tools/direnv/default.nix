@@ -1,16 +1,11 @@
-{ options, config, lib, pkgs, ... }:
+{ config, lib, ... }:
 
+with lib;
 let cfg = config.vlib.tools.direnv;
 in {
-  options.vlib.tools.direnv = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Whether or not to enable direnv.";
-    };
-  };
+  options.vlib.tools.direnv = { enable = mkEnableOption "direnv"; };
 
-  config = lib.mkIf cfg.enable {
+  config = mkIf cfg.enable {
     programs.direnv = {
       enable = true;
       nix-direnv = { enable = true; };

@@ -1,14 +1,10 @@
-{ options, config, lib, pkgs, ... }:
+{ config, lib, ... }:
 
 with lib;
 let cfg = config.vlib.suites.common;
 in {
-  options.vlib.suites.common = with types; {
-    enable = mkOption {
-      type = bool;
-      default = false;
-      description = "Whether or not to enable common configuration.";
-    };
+  options.vlib.suites.common = {
+    enable = mkEnableOption "common suite";
   };
 
   config = mkIf cfg.enable {

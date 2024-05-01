@@ -1,4 +1,4 @@
-{ options, config, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let cfg = config.vlib.cli-apps.fish;
 in {

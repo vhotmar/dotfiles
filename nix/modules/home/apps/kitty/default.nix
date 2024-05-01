@@ -1,8 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
+
 with lib;
-let cfg = config.vlib.tools.kitty;
+let cfg = config.vlib.apps.kitty;
 in {
-  options.vlib.tools.kitty = { enable = mkEnableOption "kitty"; };
+  options.vlib.apps.kitty = { enable = mkEnableOption "kitty"; };
 
   config = mkIf cfg.enable {
     vlib = {

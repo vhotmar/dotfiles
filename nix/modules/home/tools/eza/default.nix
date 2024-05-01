@@ -1,4 +1,5 @@
 { config, pkgs, lib, ... }:
+
 with lib;
 let cfg = config.vlib.tools.eza;
 in {
@@ -13,7 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ cfg.package ];
+    home.packages = [ cfg.package ];
 
     programs.fish.shellAbbrs = {
       l = "eza -al";

@@ -10,7 +10,7 @@ let
     "/home/${cfg.name}";
 in {
   options.vlib.user = {
-    enable = lib.mkEnableOption "Whether to configure the user account.";
+    enable = lib.mkEnableOption "user account";
 
     name = lib.mkOption {
       type = lib.types.nullOr lib.types.str;

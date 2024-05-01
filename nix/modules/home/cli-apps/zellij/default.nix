@@ -1,9 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 with lib;
-let cfg = config.vlib.tools.zellij;
+let cfg = config.vlib.cli-apps.zellij;
 in {
-  options.vlib.tools.zellij = { enable = mkEnableOption "zellij"; };
+  options.vlib.cli-apps.zellij = { enable = mkEnableOption "zellij"; };
 
   config = mkIf cfg.enable {
     vlib = {
