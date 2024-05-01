@@ -30,6 +30,8 @@ in {
         }
       ];
 
+      tmuxp.enable = true;
+
       extraConfig = ''
         source-file ~/.config/tmux-extra/tmux.conf
       '';

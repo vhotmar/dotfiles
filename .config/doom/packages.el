@@ -54,3 +54,5 @@
 ;; (package! org-modern)
 
 (package! org-appear)
+
+(package! catppuccin-theme)

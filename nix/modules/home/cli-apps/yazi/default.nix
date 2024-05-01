@@ -11,6 +11,8 @@ in {
         enable = true;
         configFile = { "yazi" = "yazi"; };
       };
+
+      tools = { ueberzug = { enable = true; }; };
     };
 
     programs.yazi = {

@@ -20,6 +20,8 @@
     tools = {
       gh = { enable = true; };
       vpn = { enable = true; };
+      devenv = { enable = true; };
+      cachix = { enable = true; };
     };
   };
 
