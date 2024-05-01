@@ -1,0 +1,27 @@
+{ lib, config, ... }:
+
+with lib;
+let cfg = config.vlib.user;
+in {
+  options.vlib.user = with types; {
+    name = mkOption {
+      type = str;
+      default = "vhotmar";
+      description = "The user account.";
+    };
+
+    fullName = {
+      type = str;
+      default = "Vojtech Hotmar";
+      description = "The full name of the user.";
+    };
+
+    email = {
+      type = str;
+      default = "vojta.hotmar@gmail.com";
+      description = "The email of the user.";
+    };
+  };
+
+  config = { };
+}

@@ -1,0 +1,3 @@
+{ fenix, ... }:
+
+fenix.overlays.default

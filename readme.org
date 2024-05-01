@@ -1,0 +1,5 @@
+* My ~dotfiles~
+This is main repository containing all of my dotfiles.
+
+** ~home~
+Mostly Nix ~home-manager~ configuration which I use to setup my home environment on any machine.
