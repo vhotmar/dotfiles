@@ -25,7 +25,7 @@
     };
   };
 
-  home.sessionPath = [ "$HOME/bin" ];
+  home.sessionPath = [ "$HOME/main/bin" ];
 
   home.stateVersion = "23.11";
 }

@@ -24,6 +24,7 @@ in {
         jq = { enable = true; };
         git = { enable = true; };
         zoxide = { enable = true; };
+        ssh = { enable = true; };
       };
     };
   };

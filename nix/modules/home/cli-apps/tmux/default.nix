@@ -22,12 +22,7 @@ in {
 
       plugins = with pkgs; [
         tmuxPlugins.vim-tmux-navigator
-        {
-          plugin = tmuxPlugins.catppuccin;
-          extraConfig = ''
-            set -g @catppuccin_flavour 'mocha'
-          '';
-        }
+        tmuxPlugins.catppuccin
       ];
 
       tmuxp.enable = true;
