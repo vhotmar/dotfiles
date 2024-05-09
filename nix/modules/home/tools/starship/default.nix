@@ -1,7 +1,9 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 
 with lib;
-let cfg = config.vlib.tools.starship;
+let
+  cfg = config.vlib.tools.starship;
+  flavour = "frappe";
 in {
   options.vlib.tools.starship = with types; {
     enable = mkEnableOption "Starship";
@@ -12,8 +14,16 @@ in {
       starship = {
         enable = true;
 
-        settings = builtins.fromTOML (builtins.readFile ./nerd-font.toml)
-          // builtins.fromTOML (builtins.readFile ./prompt.toml);
+        settings = {
+          palette = "catppuccin_${flavour}";
+        } // builtins.fromTOML (builtins.readFile ./nerd-font.toml)
+          // builtins.fromTOML (builtins.readFile ./prompt.toml)
+          // builtins.fromTOML (builtins.readFile (pkgs.fetchFromGitHub {
+            owner = "catppuccin";
+            repo = "starship";
+            rev = "5629d23";
+            sha256 = "nsRuxQFKbQkyEI4TXgvAjcroVdG+heKX5Pauq/4Ota0=";
+          } + /palettes/${flavour}.toml));
       };
     };
   };

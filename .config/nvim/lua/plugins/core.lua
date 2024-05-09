@@ -2,7 +2,7 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "tokyonight",
+      colorscheme = "catppuccin-frappe",
     },
   },
 
@@ -93,5 +93,18 @@ return {
       { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
       { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
     },
+  },
+
+  {
+    "catppuccin/nvim",
+    name = "nvim",
+    priority = 1000,
+    config = function()
+      require("catppuccin").setup {
+        transparent_background = true,
+        flavour = "frappe",
+        show_end_of_buffer = true,
+      }
+    end,
   },
 }

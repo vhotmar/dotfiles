@@ -12,7 +12,7 @@ require("lazy").setup {
     {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
-      opts = { colorscheme = "catppuccin", defaults = { autocmds = true, keymaps = true } },
+      opts = { colorscheme = "catppuccin-frappe", defaults = { autocmds = true, keymaps = true } },
     },
 
     { import = "lazyvim.plugins.extras.dap.core" },

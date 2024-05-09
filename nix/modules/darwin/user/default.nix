@@ -1,7 +1,6 @@
 { lib, ... }:
 
-with lib;
-{
+with lib; {
   options.vlib.user = with types; {
     name = mkOption {
       type = str;

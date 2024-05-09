@@ -3,9 +3,7 @@
 with lib;
 let cfg = config.vlib.suites.common;
 in {
-  options.vlib.suites.common = {
-    enable = mkEnableOption "common suite";
-  };
+  options.vlib.suites.common = { enable = mkEnableOption "common suite"; };
 
   config = mkIf cfg.enable {
     programs.fish = { enable = true; };

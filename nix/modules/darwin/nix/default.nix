@@ -11,7 +11,7 @@ in {
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.nixUnstable;
+      default = pkgs.nixVersions.git;
       description = "Which nix package to use.";
     };
   };

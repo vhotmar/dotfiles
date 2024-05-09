@@ -1,4 +1,4 @@
-import = ["~/.config/alacritty/catppuccin-mocha.toml"]
+import = ["~/.config/alacritty/catppuccin-frappe.toml"]
 
 [font]
 size = 13
@@ -16,6 +16,8 @@ decorations = "buttonless"
 opacity = 0.9
 startup_mode = "Maximized"
 blur = true
+padding.y = 5
+padding.x = 5
 
 [scrolling]
 history = 0
