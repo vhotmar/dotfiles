@@ -1,0 +1,62 @@
+return {
+  {
+    "ziglang/zig.vim",
+    ft = { "zig" },
+    init = function()
+      vim.g.zig_fmt_autosave = 0 -- handled by lsp
+    end,
+  },
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = function(_, opts)
+      if type(opts.ensure_installed) == "table" then
+        vim.list_extend(opts.ensure_installed, { "zig" })
+      end
+    end,
+  },
+
+  {
+    "williamboman/mason.nvim",
+    optional = true,
+    opts = function(_, opts)
+      if type(opts.ensure_installed) == "table" then
+        vim.list_extend(opts.ensure_installed, { "zls", "codelldb" })
+      end
+    end,
+  },
+
+  {
+    "nvim-neotest/neotest",
+    optional = true,
+    dependencies = {
+      "lawrence-laz/neotest-zig",
+    },
+    opts = {
+      adapters = {
+        ["neotest-zig"] = {},
+      },
+    },
+  },
+
+  {
+    "nvimtools/none-ls.nvim",
+    optional = true,
+    opts = function(_, opts)
+      local nls = require "null-ls"
+      opts.sources = vim.list_extend(opts.sources or {}, {
+        nls.builtins.formatting.zigfmt,
+      })
+    end,
+  },
+
+  {
+    "stevearc/conform.nvim",
+    optional = true,
+    opts = {
+      formatters_by_ft = {
+        zig = { "zigfmt" },
+      },
+    },
+  },
+}

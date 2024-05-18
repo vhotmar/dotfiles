@@ -12,20 +12,37 @@ require("lazy").setup {
     {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
-      opts = { colorscheme = "catppuccin-frappe", defaults = { autocmds = true, keymaps = true } },
+      --- @type LazyVimOptions
+      opts = { colorscheme = "catppuccin-frappe" },
     },
 
+    -- Copilot integration
+    { import = "lazyvim.plugins.extras.coding.copilot" },
+
+    -- Debugger integration
     { import = "lazyvim.plugins.extras.dap.core" },
     { import = "lazyvim.plugins.extras.dap.nlua" },
+
+    -- Harpoon integration
+    { import = "lazyvim.plugins.extras.editor.harpoon2" },
+    -- New version of trouble (show errors, etc.)
+    { import = "lazyvim.plugins.extras.editor.trouble-v3" },
+    -- Show words matching to one under cursor
+    { import = "lazyvim.plugins.extras.editor.illuminate" },
+    -- Show changes
+    { import = "lazyvim.plugins.extras.editor.mini-diff" },
 
     { import = "lazyvim.plugins.extras.formatting.prettier" },
 
     { import = "lazyvim.plugins.extras.lang.clangd" },
     { import = "lazyvim.plugins.extras.lang.cmake" },
+    { import = "lazyvim.plugins.extras.lang.docker" },
     { import = "lazyvim.plugins.extras.lang.json" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
     { import = "lazyvim.plugins.extras.lang.python" },
     { import = "lazyvim.plugins.extras.lang.rust" },
+    { import = "lazyvim.plugins.extras.lang.tailwind" },
+    { import = "lazyvim.plugins.extras.lang.tex" },
     { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.lang.yaml" },
 
@@ -45,7 +62,7 @@ require("lazy").setup {
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "tokyonight", "habamax" } },
+  install = { colorscheme = { "catppuccin-frappe", "tokyonight", "habamax" }, missing = true },
   checker = { enabled = true }, -- automatically check for plugin updates
   performance = {
     rtp = {

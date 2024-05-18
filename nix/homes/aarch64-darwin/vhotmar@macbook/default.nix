@@ -15,6 +15,7 @@
       emacs = { enable = true; };
       home-manager = { enable = true; };
       lazygit = { enable = true; };
+      sesh = { enable = true; };
     };
 
     tools = {
@@ -24,6 +25,9 @@
       devenv = { enable = true; };
       cachix = { enable = true; };
       yq = { enable = true; };
+      gum = { enable = true; };
+      rust-script = { enable = true; };
+      entr = {enable = true;};
     };
   };
 

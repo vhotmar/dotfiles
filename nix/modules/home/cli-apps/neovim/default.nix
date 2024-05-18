@@ -18,11 +18,14 @@ in {
         eza = { enable = true; };
         grc = { enable = true; };
         ripgrep = { enable = true; };
+        tree-sitter = { enable = true; };
       };
     };
 
     programs.neovim = {
       enable = true;
+
+      package = pkgs.neovim-nightly;
 
       vimAlias = true;
       viAlias = true;
