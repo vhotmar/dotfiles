@@ -3,15 +3,7 @@
 with lib;
 let cfg = config.vlib.tools.bat;
 in {
-  options.vlib.tools.bat = with types; {
-    enable = mkEnableOption "bat";
-
-    package = mkOption {
-      type = package;
-      default = pkgs.bat;
-      description = "The bat package to use";
-    };
-  };
+  options.vlib.tools.bat = with types; { enable = mkEnableOption "bat"; };
 
   config = mkIf cfg.enable {
     vlib = {

@@ -3,19 +3,10 @@ return {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
       if type(opts.ensure_installed) == "table" then
-        table.insert(opts.ensure_installed, "typst")
+        table.insert(opts.ensure_installed, "julia")
       else
-        opts.ensure_installed = { "typst" }
+        opts.ensure_installed = { "julia" }
       end
-    end,
-  },
-
-  {
-    "chomosuke/typst-preview.nvim",
-    ft = "typst",
-    version = "0.3.*",
-    build = function()
-      require("typst-preview").update()
     end,
   },
 
@@ -24,7 +15,7 @@ return {
     optional = true,
     opts = function(_, opts)
       if type(opts.ensure_installed) == "table" then
-        vim.list_extend(opts.ensure_installed, { "typst-lsp" })
+        vim.list_extend(opts.ensure_installed, { "julia-lsp" })
       end
     end,
   },

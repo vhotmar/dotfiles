@@ -10,25 +10,25 @@ return {
     end,
   },
 
-  {
-    "nvim-neorg/neorg",
-    ft = "norg",
-    dependencies = { "luarocks.nvim" },
-    version = "*",
-    config = function()
-      require("neorg").setup {
-        load = {
-          ["core.defaults"] = {},
-          ["core.concealer"] = {},
-          ["core.completion"] = {
-            config = { engine = "nvim-cmp" },
-          },
-          ["core.integrations.nvim-cmp"] = {},
-        },
-      }
-
-      -- vim.wo.foldlevel = 99
-      -- vim.wo.conceallevel = 2
-    end,
-  },
+  -- {
+  --   "nvim-neorg/neorg",
+  --   ft = "norg",
+  --   dependencies = { "luarocks.nvim" },
+  --   version = "*",
+  --   config = function()
+  --     require("neorg").setup {
+  --       load = {
+  --         ["core.defaults"] = {},
+  --         ["core.concealer"] = {},
+  --         ["core.completion"] = {
+  --           config = { engine = "nvim-cmp" },
+  --         },
+  --         ["core.integrations.nvim-cmp"] = {},
+  --       },
+  --     }
+  --
+  --     -- vim.wo.foldlevel = 99
+  --     -- vim.wo.conceallevel = 2
+  --   end,
+  -- },
 }

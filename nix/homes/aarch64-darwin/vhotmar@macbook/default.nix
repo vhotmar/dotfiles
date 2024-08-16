@@ -16,6 +16,7 @@
       home-manager = { enable = true; };
       lazygit = { enable = true; };
       sesh = { enable = true; };
+      nushell = { enable = true; };
     };
 
     tools = {
@@ -27,7 +28,19 @@
       yq = { enable = true; };
       gum = { enable = true; };
       rust-script = { enable = true; };
-      entr = {enable = true;};
+      entr = { enable = true; };
+      dust = { enable = true; };
+      procs = { enable = true; };
+      jless = { enable = true; };
+      oauth2c = { enable = true; };
+      azure = { enable = true; };
+      helm = { enable = true; };
+      pngpaste = { enable = true; };
+      golang = { enable = true; };
+      bitwarden = { enable = true; };
+      kubernetes = { enable = true; };
+      python = { enable = true; };
+      rqbit = { enable = true; };
     };
   };
 

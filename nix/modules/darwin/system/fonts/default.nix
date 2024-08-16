@@ -20,9 +20,7 @@ in {
     };
 
     fonts = {
-      fontDir = { enable = true; };
-
-      fonts = with pkgs;
+      packages = with pkgs;
         [
           jetbrains-mono
           iosevka-bin
