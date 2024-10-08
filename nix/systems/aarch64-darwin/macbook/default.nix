@@ -8,4 +8,6 @@
 
     loginShell = pkgs.fish;
   };
+
+  system.stateVersion = 5;
 }

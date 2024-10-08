@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, system, ... }:
 
 with lib;
 let
@@ -16,6 +16,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    home.packages = with pkgs; [ bitwarden-cli python312Packages.keyring ];
     programs.rbw = {
       # From the source in home-manager, this will also rebuild the themes cache
       # but we do want to have our own configuraiton

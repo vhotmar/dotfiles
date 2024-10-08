@@ -6,7 +6,7 @@ in {
   options.vlib.tools.vpn = { enable = mkEnableOption "vpn"; };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ openconnect-vhotmar vpn-slice-vhotmar ];
+    home.packages = with pkgs; [ openconnect vpn-slice-vhotmar ];
   };
 }
 

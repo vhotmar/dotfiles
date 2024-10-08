@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+BW_SESSION=$(bw-session-id) exec bw "$@"
