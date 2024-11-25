@@ -5,6 +5,14 @@ let cfg = config.vlib.tools.kubernetes;
 in {
   options.vlib.tools.kubernetes = { enable = mkEnableOption "kubernetes"; };
 
-  config =
-    mkIf cfg.enable { home.packages = with pkgs; [ k9s kind kubectl fluxcd ]; };
+  config = mkIf cfg.enable {
+    home.packages = with pkgs; [ k9s kind kubectl fluxcd ];
+
+    vlib = {
+      dotfiles = {
+        enable = true;
+        configFile = { "k9s" = "k9s"; };
+      };
+    };
+  };
 }

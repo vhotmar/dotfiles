@@ -1,4 +1,3 @@
-import = ["~/.config/alacritty/catppuccin-frappe.toml"]
 
 [font]
 size = 12
@@ -28,6 +27,11 @@ history = 0
 style.shape = "Beam"
 style.blinking = "On"
 
-[shell]
+[general]
+import = ["~/.config/alacritty/catppuccin-frappe.toml"]
+
+[terminal]
+
+[terminal.shell]
 program = "tmux"
 args = ["new-session", "-A", "-s", "general"]

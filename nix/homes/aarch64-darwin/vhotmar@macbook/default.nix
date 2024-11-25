@@ -33,7 +33,7 @@
       procs = { enable = true; };
       jless = { enable = true; };
       oauth2c = { enable = true; };
-      azure = { enable = true; };
+      azure = { enable = false; };
       helm = { enable = true; };
       pngpaste = { enable = true; };
       golang = { enable = true; };
