@@ -30,7 +30,8 @@ in {
           julia-mono
           noto-fonts
           noto-fonts-emoji
-          (nerdfonts.override { fonts = [ "FiraCode" "Iosevka" ]; })
+          nerd-fonts.fira-code
+          nerd-fonts.iosevka
         ] ++ cfg.fonts;
     };
   };

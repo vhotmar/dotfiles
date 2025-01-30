@@ -17,7 +17,7 @@ require("lazy").setup {
     },
 
     -- Copilot integration
-    { import = "lazyvim.plugins.extras.coding.luasnip" },
+    -- { import = "lazyvim.plugins.extras.coding.luasnip" },
     { import = "lazyvim.plugins.extras.coding.mini-comment" },
     { import = "lazyvim.plugins.extras.coding.mini-surround" },
     { import = "lazyvim.plugins.extras.coding.neogen" },
@@ -44,7 +44,7 @@ require("lazy").setup {
 
     { import = "lazyvim.plugins.extras.lang.astro" },
     { import = "lazyvim.plugins.extras.lang.clangd" },
-    -- { import = "lazyvim.plugins.extras.lang.clojure" },
+    { import = "lazyvim.plugins.extras.lang.clojure" },
     { import = "lazyvim.plugins.extras.lang.cmake" },
     { import = "lazyvim.plugins.extras.lang.docker" },
     { import = "lazyvim.plugins.extras.lang.json" },
@@ -52,6 +52,7 @@ require("lazy").setup {
     { import = "lazyvim.plugins.extras.lang.git" },
     { import = "lazyvim.plugins.extras.lang.go" },
     { import = "lazyvim.plugins.extras.lang.gleam" },
+    { import = "lazyvim.plugins.extras.lang.haskell" },
     { import = "lazyvim.plugins.extras.lang.helm" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
     { import = "lazyvim.plugins.extras.lang.nix" },
@@ -110,3 +111,5 @@ require("lazy").setup {
     },
   },
 }
+
+vim.g.lazyvim_prettier_needs_config = true

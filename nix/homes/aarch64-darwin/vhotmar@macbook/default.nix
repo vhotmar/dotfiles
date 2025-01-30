@@ -41,6 +41,7 @@
       kubernetes = { enable = true; };
       python = { enable = true; };
       rqbit = { enable = true; };
+      kdoctor = { enable = true; };
     };
   };
 

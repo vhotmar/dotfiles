@@ -6,6 +6,14 @@ return {
     },
   },
 
+  {
+    "snacks.nvim",
+    opts = {
+      scroll = { enabled = false },
+      animate = { enabled = false },
+    },
+  },
+
   -- {
   --   "nvim-notify",
   --   opts = {

@@ -3,11 +3,7 @@
 {
   vlib = { suites = { common = { enable = true; }; }; };
 
-  environment = {
-    shells = with pkgs; [ bash zsh fish ];
-
-    loginShell = pkgs.fish;
-  };
+  environment = { shells = with pkgs; [ bash zsh fish ]; };
 
   system.stateVersion = 5;
 }
