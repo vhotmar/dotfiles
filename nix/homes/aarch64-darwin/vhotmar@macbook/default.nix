@@ -42,6 +42,8 @@
       python = { enable = true; };
       rqbit = { enable = true; };
       kdoctor = { enable = true; };
+      rbenv = { enable = true; };
+      ollama = { enable = true; };
     };
   };
 
