@@ -25,6 +25,7 @@ in {
         git = { enable = true; };
         zoxide = { enable = true; };
         ssh = { enable = true; };
+        clang = { enable = true; };
       };
     };
   };
