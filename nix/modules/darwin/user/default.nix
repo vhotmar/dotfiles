@@ -16,7 +16,7 @@ with lib; {
 
     email = {
       type = str;
-      default = "vojta.hotmar@gmail.com";
+      default = "vojtech.hotmar@pm.me";
       description = "The email of the user.";
     };
   };

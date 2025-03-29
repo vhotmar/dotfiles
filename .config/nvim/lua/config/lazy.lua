@@ -13,11 +13,12 @@ require("lazy").setup {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
       --- @type LazyVimOptions
-      opts = { colorscheme = "catppuccin-frappe" },
+      opts = { colorscheme = "catppuccin-latte" },
     },
 
     -- Copilot integration
     -- { import = "lazyvim.plugins.extras.coding.luasnip" },
+    { import = "lazyvim.plugins.extras.coding.blink" },
     { import = "lazyvim.plugins.extras.coding.mini-comment" },
     { import = "lazyvim.plugins.extras.coding.mini-surround" },
     { import = "lazyvim.plugins.extras.coding.neogen" },
@@ -39,11 +40,14 @@ require("lazy").setup {
     { import = "lazyvim.plugins.extras.editor.inc-rename" },
     -- Show changes
     { import = "lazyvim.plugins.extras.editor.mini-diff" },
+    { import = "lazyvim.plugins.extras.editor.snacks_explorer" },
+    { import = "lazyvim.plugins.extras.editor.snacks_picker" },
 
     -- { import = "lazyvim.plugins.extras.formatting.prettier" },
 
-    { import = "lazyvim.plugins.extras.lang.astro" },
+    -- { import = "lazyvim.plugins.extras.lang.astro" },
     { import = "lazyvim.plugins.extras.lang.clangd" },
+    { import = "lazyvim.plugins.extras.lang.ansible" },
     { import = "lazyvim.plugins.extras.lang.clojure" },
     { import = "lazyvim.plugins.extras.lang.cmake" },
     { import = "lazyvim.plugins.extras.lang.docker" },
@@ -83,6 +87,13 @@ require("lazy").setup {
     { import = "lazyvim.plugins.extras.util.startuptime" },
 
     { import = "plugins" },
+
+    {
+      "neovim/nvim-lspconfig",
+      opts = {
+        inlay_hints = { enabled = false },
+      },
+    },
   },
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
@@ -93,7 +104,7 @@ require("lazy").setup {
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "catppuccin-frappe", "tokyonight", "habamax" }, missing = true },
+  install = { colorscheme = { "catppuccin-latte", "catppuccin-frappe", "tokyonight", "habamax" }, missing = true },
   checker = { enabled = true }, -- automatically check for plugin updates
   performance = {
     rtp = {

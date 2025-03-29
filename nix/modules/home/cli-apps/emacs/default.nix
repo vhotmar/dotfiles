@@ -13,7 +13,7 @@ in {
       };
     };
 
-    home.packages = with pkgs; [ emacs29 ];
+    home.packages = with pkgs; [ emacs30 ];
 
     home.mutableFile."${config.xdg.configHome}/emacs" = {
       url = "https://github.com/doomemacs/doomemacs";

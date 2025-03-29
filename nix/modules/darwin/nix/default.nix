@@ -23,8 +23,12 @@ in {
       nix-prefetch-git
     ];
 
+    ids.gids.nixbld = 30000;
+
     nix = let users = [ "root" config.vlib.user.name ];
     in {
+      enable = true;
+
       package = cfg.package;
 
       settings = {
@@ -38,7 +42,6 @@ in {
         automatic = true;
         interval = { Day = 7; };
         options = "--delete-older-than 30d";
-        user = config.vlib.user.name;
       };
 
       # flake-utils-plus
