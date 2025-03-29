@@ -6,11 +6,11 @@
 
     nixpkgs-darwin-stable.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
 
-    # TODO: remove once neovim 0.10 is in nixpkgs
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # # TODO: remove once neovim 0.10 is in nixpkgs
+    # neovim-nightly-overlay = {
+    #   url = "github:nix-community/neovim-nightly-overlay";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     snowfall-lib = {
       url = "github:snowfallorg/lib";
@@ -48,9 +48,6 @@
 
       overlays = with inputs; [ snowfall-flake.overlays."package/flake" ];
 
-      snowfall = {
-        namespace = "vlib";
-
-      };
+      snowfall = { namespace = "vlib"; };
     };
 }
