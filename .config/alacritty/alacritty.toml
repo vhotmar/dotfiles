@@ -28,7 +28,7 @@ style.shape = "Beam"
 style.blinking = "On"
 
 [general]
-import = ["~/.config/alacritty/catppuccin-latte.toml"]
+import = ["~/.config/alacritty/catppuccin-frappe.toml"]
 
 [terminal]
 
