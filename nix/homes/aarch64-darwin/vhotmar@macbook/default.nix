@@ -12,11 +12,11 @@
     apps = { alacritty = { enable = true; }; };
 
     cli-apps = {
-      emacs = { enable = true; };
+      emacs = { enable = false; };
       home-manager = { enable = true; };
       lazygit = { enable = true; };
       sesh = { enable = true; };
-      nushell = { enable = true; };
+      nushell = { enable = false; };
     };
 
     tools = {
