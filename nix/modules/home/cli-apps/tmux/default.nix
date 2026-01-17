@@ -26,7 +26,7 @@ in {
         tmuxPlugins.extrakto
       ];
 
-      tmuxp.enable = true;
+      # tmuxp.enable = true;
 
       # set-option -g default-command "${pkgs.reattach-to-user-namespace}/bin/reattach-to-user-namespace -l ${pkgs.fish}/bin/fish"
       extraConfig = ''

@@ -22,6 +22,8 @@ in {
       };
     };
 
+    home.packages = with pkgs; [ lua ];
+
     programs.neovim = {
       enable = true;
 

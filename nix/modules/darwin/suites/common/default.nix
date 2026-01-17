@@ -11,10 +11,7 @@ in {
     vlib = {
       nix = { enable = true; };
 
-      tools = {
-        git = { enable = true; };
-        flake = { enable = true; };
-      };
+      tools = { git = { enable = true; }; };
 
       system = { fonts = { enable = true; }; };
 

@@ -6,7 +6,7 @@ in {
   options.vlib.tools.kubernetes = { enable = mkEnableOption "kubernetes"; };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ k9s kind kubectl fluxcd ];
+    home.packages = with pkgs; [ k9s kind kubectl fluxcd dive podman ];
 
     vlib = {
       dotfiles = {

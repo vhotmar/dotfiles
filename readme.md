@@ -1,8 +1,8 @@
-= Home config
+* Home config
 
-== Updates
+** Updates
 
 ```sh
-flake update
-darwin-rebuild switch --flake ~/main/dotfiles/nix#macbook # or some other path
+nix flake update
+sudo darwin-rebuild switch --flake ~/main/dotfiles/nix#macbook # or some other path
 ```

@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 
 with lib;
 let
@@ -19,33 +19,52 @@ in {
       default = user.email;
       description = "The email to configure git with.";
     };
+
+    signingKey = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+    };
   };
 
   config = mkIf cfg.enable {
+    home.packages = with pkgs; [ jujutsu ];
+
+    programs.difftastic.enable = true;
+    programs.difftastic.git.enable = true;
+
     programs.git = {
       enable = true;
 
-      inherit (cfg) userName userEmail;
+      settings = {
 
-      extraConfig = {
+        user = {
+          email = cfg.userEmail;
+          name = cfg.userName;
+        };
+
+        alias = {
+          a = "add";
+          d = "diff";
+          dc = "diff --cached";
+          ds = "diff --staged";
+          s = "status --short";
+          st = "status";
+          co = "checkout";
+          l = "log --pretty=oneline -n 20 --graph --abbrev-commit";
+        };
+
         init = { defaultBranch = "main"; };
         pull = { rebase = true; };
         push = { autoSetupRemote = true; };
         core = { whitespace = "trailing-space,space-before-tab"; };
       };
 
-      difftastic.enable = true;
-
-      aliases = {
-        a = "add";
-        d = "diff";
-        dc = "diff --cached";
-        ds = "diff --staged";
-        s = "status --short";
-        st = "status";
-        co = "checkout";
-        l = "log --pretty=oneline -n 20 --graph --abbrev-commit";
+      signing = {
+        format = "ssh";
+        signByDefault = cfg.signingKey != null;
+        key = cfg.signingKey;
       };
+
     };
   };
 }

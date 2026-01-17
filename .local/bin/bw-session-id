@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
 session_id=$(keyring get bitwarden session)
-status=$(BW_SESSION="$session_id" bw status | jq -r ".status")
+status=$(BW_SESSION="$session_id" npx @bitwarden/cli status | jq -r ".status")
 
 if [ "$status" = "locked" ]; then
-  session_id=$(bw unlock --raw)
+  session_id=$(npx @bitwarden/cli unlock --raw)
 
   echo "$session_id" | keyring set bitwarden session
 fi
