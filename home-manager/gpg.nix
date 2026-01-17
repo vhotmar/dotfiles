@@ -1,6 +1,10 @@
 # home-manager/gpg.nix
 # GPG agent configuration with SSH support
-# Adapted from nix/modules/home/security/gpg/default.nix
+#
+# On Linux: Uses home-manager's gpg-agent service directly
+# On Darwin: home-manager's gpg-agent service doesn't work, so we manually:
+#   - Generate gpg-agent.conf
+#   - Set up shell integration for GPG_TTY and SSH_AUTH_SOCK
 { config, pkgs, lib, ... }:
 
 let

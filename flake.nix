@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs-darwin-stable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
@@ -22,7 +21,7 @@
 
   };
 
-  outputs = { self, nixpkgs, nixpkgs-darwin-stable, nix-darwin, home-manager, fenix, ... }@inputs:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, fenix, ... }@inputs:
   let
     mkPkgs = system: import nixpkgs {
       inherit system;

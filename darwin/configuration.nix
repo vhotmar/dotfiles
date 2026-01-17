@@ -1,6 +1,9 @@
 # darwin/configuration.nix
 { config, pkgs, lib, ... }:
 
+let
+  username = "vhotmar";
+in
 {
   # ══════════════════════════════════════════════════════════════════════════════
   # NIX SETTINGS
@@ -14,8 +17,8 @@
 
     settings = {
       experimental-features = "nix-command flakes";
-      trusted-users = [ "root" "vhotmar" ];
-      allowed-users = [ "root" "vhotmar" ];
+      trusted-users = [ "root" username ];
+      allowed-users = [ "root" username ];
     };
 
     gc = {
@@ -87,9 +90,9 @@
   # USERS
   # ══════════════════════════════════════════════════════════════════════════════
 
-  users.users.vhotmar = {
-    name = "vhotmar";
-    home = "/Users/vhotmar";
+  users.users.${username} = {
+    name = username;
+    home = "/Users/${username}";
   };
 
   # ══════════════════════════════════════════════════════════════════════════════
@@ -97,5 +100,5 @@
   # ══════════════════════════════════════════════════════════════════════════════
 
   system.stateVersion = 6;
-  system.primaryUser = "vhotmar";
+  system.primaryUser = username;
 }

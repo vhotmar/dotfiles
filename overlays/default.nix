@@ -16,14 +16,8 @@ let
       };
     });
   };
-
-  # Tmux from stable channel (for darwin compatibility)
-  tmuxOverlay = final: prev: {
-    tmux-stable = inputs.nixpkgs-darwin-stable.legacyPackages.${prev.system}.tmux;
-  };
 in
 [
   fenixOverlay
   vpnSliceOverlay
-  tmuxOverlay
 ]
