@@ -1,3 +1,0 @@
-{ fenix, ... }:
-
-fenix.overlays.default

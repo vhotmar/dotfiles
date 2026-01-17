@@ -1,30 +1,17 @@
 {
-  description = "A very basic flake";
+  description = "vhotmar's dotfiles";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
-
     nixpkgs-darwin-stable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # nixpkgs-darwin-stable.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
 
-    snowfall-lib = {
-      url = "github:snowfallorg/lib";
+    nix-darwin = {
+      url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # snowfall-flake = {
-    #   url = "github:snowfallorg/flake";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
 
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    darwin = {
-      url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -32,21 +19,43 @@
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
   };
 
-  outputs = inputs:
-    inputs.snowfall-lib.mkFlake {
-      inherit inputs;
-
-      channels-config = {
+  outputs = { self, nixpkgs, nixpkgs-darwin-stable, nix-darwin, home-manager, fenix, ... }@inputs:
+  let
+    mkPkgs = system: import nixpkgs {
+      inherit system;
+      config = {
         allowUnfree = true;
         allowBroken = true;
       };
-
-      src = ./nix;
-
-      # overlays = with inputs; [ snowfall-flake.overlays."package/flake" ];
-
-      snowfall = { namespace = "vlib"; };
+      overlays = import ./overlays { inherit inputs; };
     };
+  in {
+    # ══════════════════════════════════════════════════════════════════════════
+    # macOS (macbook)
+    # ══════════════════════════════════════════════════════════════════════════
+    darwinConfigurations."macbook" = nix-darwin.lib.darwinSystem {
+      system = "aarch64-darwin";
+      pkgs = mkPkgs "aarch64-darwin";
+      modules = [
+        ./darwin/configuration.nix
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.vhotmar = import ./home-manager/darwin.nix;
+        }
+      ];
+    };
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # Linux (unix-server) - standalone home-manager
+    # ══════════════════════════════════════════════════════════════════════════
+    homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
+      pkgs = mkPkgs "x86_64-linux";
+      modules = [ ./home-manager/linux.nix ];
+    };
+  };
 }
