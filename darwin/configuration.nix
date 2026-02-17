@@ -1,5 +1,10 @@
 # darwin/configuration.nix
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   username = "vhotmar";
@@ -17,13 +22,21 @@ in
 
     settings = {
       experimental-features = "nix-command flakes";
-      trusted-users = [ "root" username ];
-      allowed-users = [ "root" username ];
+      trusted-users = [
+        "root"
+        username
+      ];
+      allowed-users = [
+        "root"
+        username
+      ];
     };
 
     gc = {
       automatic = true;
-      interval = { Day = 7; };
+      interval = {
+        Day = 7;
+      };
       options = "--delete-older-than 30d";
     };
   };
@@ -33,20 +46,26 @@ in
   # ══════════════════════════════════════════════════════════════════════════════
 
   environment.systemPackages = with pkgs; [
-    nixfmt-rfc-style
+    nixfmt
     nix-index
     nix-prefetch-git
     gnupg
     git
   ];
 
-  environment.shells = with pkgs; [ bash zsh fish ];
+  environment.shells = with pkgs; [
+    bash
+    zsh
+    fish
+  ];
 
   # ══════════════════════════════════════════════════════════════════════════════
   # FONTS
   # ══════════════════════════════════════════════════════════════════════════════
 
-  environment.variables = { LOG_ICONS = "true"; };
+  environment.variables = {
+    LOG_ICONS = "true";
+  };
 
   fonts.packages = with pkgs; [
     jetbrains-mono

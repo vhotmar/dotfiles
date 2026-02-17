@@ -1,23 +1,29 @@
 # home-manager/common.nix
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   # User info - used in multiple places
   userFullName = "Vojtech Hotmar";
   userEmail = "vojtech.hotmar@pm.me";
-  signingKey =
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIkXgI1lA120aiO1HCysdk3YEihbYCKvbGpoA0etbJxu";
+  signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIkXgI1lA120aiO1HCysdk3YEihbYCKvbGpoA0etbJxu";
 
   # Lazy symlink helpers - only evaluated when used in config section
-  dotfilesPath = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/main/dotfiles";
-  dotfilesPrivatePath = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/main/dotfiles-private";
-  mkSymlink = path:
-    config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/main/dotfiles/.config/${path}";
-in {
-  imports = [ ./mutable-files.nix ./gpg.nix ];
+  dotfilesPath = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles";
+  dotfilesPrivatePath = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles-private";
+  mkSymlink =
+    path:
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles/.config/${path}";
+in
+{
+  imports = [
+    ./mutable-files.nix
+    ./gpg.nix
+  ];
 
   home.stateVersion = "23.11";
   programs.home-manager.enable = true;
@@ -31,6 +37,7 @@ in {
     go
     (python3.withPackages (ps: with ps; [ setuptools ]))
     nodejs
+    deno
     zx
     bun
     (fenix.complete.withComponents [
@@ -48,6 +55,7 @@ in {
     lazygit
     difftastic
     clang
+    statix
 
     # ── Shell & Terminal ──────────────────────────────────────────────────────
     # (fish, starship, tmux configured via programs.* below)
@@ -62,6 +70,7 @@ in {
     jq
     yq-go
     jless
+    csvtool
 
     # ── Git ───────────────────────────────────────────────────────────────────
     jujutsu
@@ -83,6 +92,8 @@ in {
     gum
     cachix
     devenv
+    nmap
+    parallel-full
 
     # ── Security ──────────────────────────────────────────────────────────────
     gnupg
@@ -179,14 +190,20 @@ in {
 
     settings = {
       palette = "catppuccin_frappe";
-    } // builtins.fromTOML (builtins.readFile ./nerd-font.toml)
-      // builtins.fromTOML (builtins.readFile ./prompt.toml)
-      // builtins.fromTOML (builtins.readFile (pkgs.fetchFromGitHub {
-        owner = "catppuccin";
-        repo = "starship";
-        rev = "5629d23";
-        sha256 = "nsRuxQFKbQkyEI4TXgvAjcroVdG+heKX5Pauq/4Ota0=";
-      } + /palettes/frappe.toml));
+    }
+    // builtins.fromTOML (builtins.readFile ./nerd-font.toml)
+    // builtins.fromTOML (builtins.readFile ./prompt.toml)
+    // builtins.fromTOML (
+      builtins.readFile (
+        pkgs.fetchFromGitHub {
+          owner = "catppuccin";
+          repo = "starship";
+          rev = "5629d23";
+          sha256 = "nsRuxQFKbQkyEI4TXgvAjcroVdG+heKX5Pauq/4Ota0=";
+        }
+        + /palettes/frappe.toml
+      )
+    );
   };
 
   # ── Neovim ──────────────────────────────────────────────────────────────────
@@ -197,7 +214,7 @@ in {
     vimdiffAlias = true;
     defaultEditor = true;
     plugins = with pkgs.vimPlugins; [ lazy-nvim ];
-    extraLuaConfig = "require('main')";
+    initLua = "require('main')";
   };
 
   # ── Tmux ────────────────────────────────────────────────────────────────────
@@ -206,7 +223,11 @@ in {
     shell = "${pkgs.fish}/bin/fish";
     clock24 = true;
     historyLimit = 10000;
-    plugins = with pkgs.tmuxPlugins; [ vim-tmux-navigator catppuccin extrakto ];
+    plugins = with pkgs.tmuxPlugins; [
+      vim-tmux-navigator
+      catppuccin
+      extrakto
+    ];
     extraConfig = ''
       source-file ~/.config/tmux-extra/tmux.conf
     '';
@@ -220,7 +241,9 @@ in {
   };
   programs.direnv = {
     enable = true;
-    nix-direnv = { enable = true; };
+    nix-direnv = {
+      enable = true;
+    };
   };
   programs.fzf = {
     enable = true;
@@ -246,7 +269,10 @@ in {
       "label" = "#c6d0f5";
     };
 
-    defaultOptions = [ "--ansi" "--no-separator" ];
+    defaultOptions = [
+      "--ansi"
+      "--no-separator"
+    ];
 
     fileWidgetOptions = [
       # Preview the contents of the selected file

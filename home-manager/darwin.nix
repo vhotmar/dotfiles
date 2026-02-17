@@ -1,5 +1,10 @@
 # home-manager/darwin.nix
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [ ./common.nix ];
@@ -25,15 +30,17 @@
     enable = true;
     enableFishIntegration = true;
 
-    plugins = [{
-      name = "ruby-build";
-      src = pkgs.fetchFromGitHub {
-        owner = "rbenv";
-        repo = "ruby-build";
-        rev = "v20250130";
-        hash = "sha256-PrWp4AXstiCPq/nxHjbpVbuhEd6fzExIE7tfl28bDX8=";
-      };
-    }];
+    plugins = [
+      {
+        name = "ruby-build";
+        src = pkgs.fetchFromGitHub {
+          owner = "rbenv";
+          repo = "ruby-build";
+          rev = "v20250130";
+          hash = "sha256-PrWp4AXstiCPq/nxHjbpVbuhEd6fzExIE7tfl28bDX8=";
+        };
+      }
+    ];
   };
 
 }

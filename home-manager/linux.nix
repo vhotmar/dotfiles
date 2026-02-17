@@ -1,5 +1,10 @@
 # home-manager/linux.nix
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [ ./common.nix ];

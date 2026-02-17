@@ -19,9 +19,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    claude-code-overlay = {
+      url = "github:ryoppippi/claude-code-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, fenix, ... }@inputs:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, fenix, claude-code-overlay, ... }@inputs:
   let
     mkPkgs = system: import nixpkgs {
       inherit system;

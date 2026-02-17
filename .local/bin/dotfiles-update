@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES_DIR="$HOME/main/dotfiles"
+
+cd "$DOTFILES_DIR"
+
+echo "Updating flake inputs..."
+nix flake update
+
+echo "Rebuilding darwin configuration..."
+sudo darwin-rebuild switch --flake .#macbook
+
+echo "Done!"
