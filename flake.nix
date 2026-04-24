@@ -72,5 +72,13 @@
         pkgs = mkPkgs "x86_64-linux";
         modules = [ ./home-manager/linux.nix ];
       };
+
+      # ══════════════════════════════════════════════════════════════════════════
+      # Linux (Lima VM on aarch64-darwin host) - standalone home-manager
+      # ══════════════════════════════════════════════════════════════════════════
+      homeConfigurations."vhotmar@lima" = home-manager.lib.homeManagerConfiguration {
+        pkgs = mkPkgs "aarch64-linux";
+        modules = [ ./home-manager/lima.nix ];
+      };
     };
 }
