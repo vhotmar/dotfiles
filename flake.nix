@@ -23,43 +23,54 @@
       url = "github:ryoppippi/claude-code-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, fenix, claude-code-overlay, ... }@inputs:
-  let
-    mkPkgs = system: import nixpkgs {
-      inherit system;
-      config = {
-        allowUnfree = true;
-        allowBroken = true;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+      fenix,
+      claude-code-overlay,
+      ...
+    }@inputs:
+    let
+      mkPkgs =
+        system:
+        import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+            allowBroken = true;
+          };
+          overlays = import ./overlays { inherit inputs; };
+        };
+    in
+    {
+      # ══════════════════════════════════════════════════════════════════════════
+      # macOS (macbook)
+      # ══════════════════════════════════════════════════════════════════════════
+      darwinConfigurations."macbook" = nix-darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        pkgs = mkPkgs "aarch64-darwin";
+        modules = [
+          ./darwin/configuration.nix
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.vhotmar = import ./home-manager/darwin.nix;
+          }
+        ];
       };
-      overlays = import ./overlays { inherit inputs; };
-    };
-  in {
-    # ══════════════════════════════════════════════════════════════════════════
-    # macOS (macbook)
-    # ══════════════════════════════════════════════════════════════════════════
-    darwinConfigurations."macbook" = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-      pkgs = mkPkgs "aarch64-darwin";
-      modules = [
-        ./darwin/configuration.nix
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.vhotmar = import ./home-manager/darwin.nix;
-        }
-      ];
-    };
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # Linux (unix-server) - standalone home-manager
-    # ══════════════════════════════════════════════════════════════════════════
-    homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
-      pkgs = mkPkgs "x86_64-linux";
-      modules = [ ./home-manager/linux.nix ];
+      # ══════════════════════════════════════════════════════════════════════════
+      # Linux (unix-server) - standalone home-manager
+      # ══════════════════════════════════════════════════════════════════════════
+      homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
+        pkgs = mkPkgs "x86_64-linux";
+        modules = [ ./home-manager/linux.nix ];
+      };
     };
-  };
 }

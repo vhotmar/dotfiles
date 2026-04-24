@@ -106,6 +106,32 @@ in
   };
 
   # ══════════════════════════════════════════════════════════════════════════════
+  # LAUNCH AGENTS
+  # ══════════════════════════════════════════════════════════════════════════════
+
+  launchd.user.agents.yknotify = {
+    serviceConfig = {
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardOutPath = "/tmp/yknotify.out";
+      StandardErrorPath = "/tmp/yknotify.err";
+    };
+    script = ''
+      LAST_NTFY=0
+      ${pkgs.yknotify}/bin/yknotify | while IFS= read -r line; do
+        NOW=$(date +%s)
+        if [ "$NOW" -le $((LAST_NTFY + 2)) ]; then
+          continue
+        fi
+        LAST_NTFY=$NOW
+        msg=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.type')
+        ${pkgs.terminal-notifier}/bin/terminal-notifier \
+          -title yknotify -message "$msg" -sound Submarine
+      done
+    '';
+  };
+
+  # ══════════════════════════════════════════════════════════════════════════════
   # USERS
   # ══════════════════════════════════════════════════════════════════════════════
 

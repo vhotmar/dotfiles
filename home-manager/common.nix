@@ -38,7 +38,6 @@ in
     (python3.withPackages (ps: with ps; [ setuptools ]))
     nodejs
     deno
-    zx
     bun
     (fenix.complete.withComponents [
       "cargo"
@@ -48,6 +47,8 @@ in
       "rustfmt"
     ])
     rust-analyzer-nightly
+    jbang
+    uv
 
     # ── Editors & Dev Tools ───────────────────────────────────────────────────
     lua
@@ -98,6 +99,9 @@ in
     # ── Security ──────────────────────────────────────────────────────────────
     gnupg
     python312Packages.keyring
+    openssh
+    libfido2
+    yubikey-manager
 
     # ── Misc Tools ────────────────────────────────────────────────────────────
     ast-grep
@@ -215,6 +219,8 @@ in
     defaultEditor = true;
     plugins = with pkgs.vimPlugins; [ lazy-nvim ];
     initLua = "require('main')";
+    withRuby = true;
+    withPython3 = true;
   };
 
   # ── Tmux ────────────────────────────────────────────────────────────────────
@@ -302,6 +308,7 @@ in
     enableBashIntegration = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
+    shellWrapperName = "y";
   };
 
   programs.rbw = {

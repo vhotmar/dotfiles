@@ -22,9 +22,16 @@
     oauth2c
     rust-script
     rqbit
+    yknotify
+    terminal-notifier
+    lima
     # azure-cli  # disabled in current config
     # ollama     # disabled in current config
   ];
+
+  home.sessionVariables = {
+    LIMA_HOME = "/Volumes/T7/lima";
+  };
 
   programs.rbenv = {
     enable = true;
