@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Open an alacritty window pointed at the Lima kdev VM.
+#
+# Uses alacritty-kdev.toml (catppuccin-mocha) so the kdev window is visually
+# distinct from local windows (which use frappe). Inside the VM, attach-or-
+# create a dedicated "kdev" tmux session so multiple alacritty-kdev windows
+# share one tmux state.
+#
+# Wired to Alfred via a "Keyword to Script" workflow that runs:
+#   alacritty-kdev
+set -euo pipefail
+
+# Make the script self-contained: Alfred runs in a non-login shell that
+# doesn't inherit home-manager's session vars or PATH, so set what we need.
+export PATH="/etc/profiles/per-user/vhotmar/bin:/run/current-system/sw/bin:$PATH"
+export LIMA_HOME="${LIMA_HOME:-/Volumes/T7/lima}"
+
+exec alacritty \
+  --title "kdev - lima" \
+  --config-file ~/.config/alacritty/alacritty-kdev.toml \
+  -e limactl shell kdev -- tmux new-session -A -s kdev

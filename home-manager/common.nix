@@ -42,11 +42,11 @@ in
     (fenix.complete.withComponents [
       "cargo"
       "clippy"
+      "rust-analyzer"
       "rust-src"
       "rustc"
       "rustfmt"
     ])
-    rust-analyzer-nightly
     jbang
     uv
 
@@ -61,7 +61,6 @@ in
     # ── Shell & Terminal ──────────────────────────────────────────────────────
     # (fish, starship, tmux configured via programs.* below)
     sesh
-    ueberzugpp
 
     # ── File & Search ─────────────────────────────────────────────────────────
     fd
@@ -95,6 +94,9 @@ in
     devenv
     nmap
     parallel-full
+    unzip
+    socat
+    gnused
 
     # ── Security ──────────────────────────────────────────────────────────────
     gnupg
@@ -159,6 +161,17 @@ in
   # ── Fish Shell ──────────────────────────────────────────────────────────────
   programs.fish = {
     enable = true;
+
+    # Auto-attach (or create) the "general" tmux session for interactive,
+    # non-tmux, local shells. No `exec`, so detaching with prefix-d drops
+    # back to a fish prompt instead of closing the terminal.
+    interactiveShellInit = ''
+      if status is-interactive
+         and not set -q TMUX
+         and not set -q SSH_TTY
+          tmux new-session -A -s general
+      end
+    '';
 
     shellAbbrs = {
       g = "git";
@@ -319,7 +332,6 @@ in
     };
   };
 
-  programs.alacritty.enable = true;
   programs.bat.enable = true;
   programs.gh.enable = true;
   programs.gh-dash.enable = true;
@@ -356,7 +368,6 @@ in
     "btop".source = mkSymlink "btop";
     "k9s".source = mkSymlink "k9s";
     "sesh".source = mkSymlink "sesh";
-    "alacritty".source = mkSymlink "alacritty";
     "zellij".source = mkSymlink "zellij";
     "bat".source = mkSymlink "bat";
     "lazygit".source = mkSymlink "lazygit";

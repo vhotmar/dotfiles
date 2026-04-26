@@ -1,5 +1,5 @@
 [general]
 import = [
   "~/.config/alacritty/alacritty-base.toml",
-  "~/.config/alacritty/catppuccin-frappe.toml",
+  "~/.config/alacritty/catppuccin-mocha.toml",
 ]

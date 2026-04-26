@@ -7,7 +7,10 @@
 }:
 
 {
-  imports = [ ./common.nix ];
+  imports = [
+    ./common.nix
+    ./desktop.nix
+  ];
 
   home.username = lib.mkForce "vhotmar";
   home.homeDirectory = lib.mkForce "/Users/vhotmar";
