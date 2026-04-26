@@ -22,7 +22,6 @@ in
 {
   imports = [
     ./mutable-files.nix
-    ./gpg.nix
   ];
 
   home.stateVersion = "23.11";
@@ -99,7 +98,6 @@ in
     gnused
 
     # ── Security ──────────────────────────────────────────────────────────────
-    gnupg
     python312Packages.keyring
     openssh
     libfido2

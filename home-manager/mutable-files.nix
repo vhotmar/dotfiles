@@ -91,7 +91,6 @@ in
             makeBinPath (
               with pkgs;
               [
-                gnupg
                 git
                 openssh
               ]
