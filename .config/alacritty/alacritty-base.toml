@@ -27,6 +27,7 @@ style.shape = "Beam"
 style.blinking = "On"
 
 [terminal]
+osc52 = "OnlyCopy"
 
 [terminal.shell]
 program = "fish"

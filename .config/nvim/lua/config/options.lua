@@ -4,3 +4,24 @@
 vim.opt.colorcolumn = "100"
 
 vim.cmd [[highlight ColorColumn ctermbg=lightgrey guibg=lightgrey]]
+
+if vim.env.SSH_TTY then
+  vim.opt.clipboard = "unnamedplus"
+  local function paste()
+    return {
+      vim.fn.split(vim.fn.getreg "", "\n"),
+      vim.fn.getregtype "",
+    }
+  end
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = require("vim.ui.clipboard.osc52").copy "+",
+      ["*"] = require("vim.ui.clipboard.osc52").copy "*",
+    },
+    paste = {
+      ["+"] = paste,
+      ["*"] = paste,
+    },
+  }
+end

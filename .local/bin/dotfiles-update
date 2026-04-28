@@ -8,7 +8,19 @@ cd "$DOTFILES_DIR"
 echo "Updating flake inputs..."
 nix flake update
 
-echo "Rebuilding darwin configuration..."
-sudo darwin-rebuild switch --flake .#macbook
+case "$(uname -s)" in
+  Darwin)
+    echo "Rebuilding darwin configuration..."
+    sudo darwin-rebuild switch --flake .#macbook
+    ;;
+  Linux)
+    echo "Switching home-manager configuration (lima)..."
+    home-manager switch --flake .#vhotmar@lima
+    ;;
+  *)
+    echo "Unsupported platform: $(uname -s)" >&2
+    exit 1
+    ;;
+esac
 
 echo "Done!"

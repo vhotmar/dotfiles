@@ -256,6 +256,22 @@ in
     enable = true;
     enableFishIntegration = true;
   };
+  programs.atuin = {
+    enable = true;
+    enableFishIntegration = true;
+    daemon.enable = true;
+    settings = {
+      auto_sync = true;
+      sync_address = "https://api.atuin.sh";
+      sync_frequency = "1h";
+      search_mode = "fuzzy";
+      filter_mode = "global";
+      enter_accept = false;
+      secrets_filter = false;
+      style = "compact";
+      show_preview = true;
+    };
+  };
   programs.direnv = {
     enable = true;
     nix-direnv = {

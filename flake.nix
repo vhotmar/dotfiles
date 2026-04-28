@@ -23,6 +23,11 @@
       url = "github:ryoppippi/claude-code-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    mac-app-util = {
+      url = "github:hraban/mac-app-util";
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -33,6 +38,7 @@
       home-manager,
       fenix,
       claude-code-overlay,
+      mac-app-util,
       ...
     }@inputs:
     let
@@ -56,10 +62,12 @@
         pkgs = mkPkgs "aarch64-darwin";
         modules = [
           ./darwin/configuration.nix
+          mac-app-util.darwinModules.default
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.sharedModules = [ mac-app-util.homeManagerModules.default ];
             home-manager.users.vhotmar = import ./home-manager/darwin.nix;
           }
         ];
