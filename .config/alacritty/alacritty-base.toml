@@ -32,3 +32,9 @@ osc52 = "OnlyCopy"
 [terminal.shell]
 program = "fish"
 args = ["-l"]
+
+[bell]
+animation = "EaseOutExpo"
+duration = 80
+color = "#fab387"
+command = { program = "osascript", args = ["-e", "display notification \"Bell\" with title \"Alacritty\" sound name \"Funk\""] }

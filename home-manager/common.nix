@@ -53,6 +53,8 @@ in
     lua
     tree-sitter
     lazygit
+    jjui
+    diffnav
     difftastic
     clang
     statix
@@ -106,6 +108,7 @@ in
     # ── Misc Tools ────────────────────────────────────────────────────────────
     ast-grep
     claude-code
+    codex
     opencode
     github-copilot-cli
     proton-pass-cli
@@ -244,6 +247,23 @@ in
       vim-tmux-navigator
       catppuccin
       extrakto
+      {
+        plugin = resurrect;
+        # Options must be set BEFORE the plugin's run-shell, otherwise
+        # tmux-continuum's background restore script can race and read
+        # them before they're applied.
+        extraConfig = ''
+          set -g @resurrect-capture-pane-contents 'on'
+          set -g @resurrect-processes 'false'
+        '';
+      }
+      {
+        plugin = continuum;
+        extraConfig = ''
+          set -g @continuum-save-interval '15'
+          set -g @continuum-restore 'on'
+        '';
+      }
     ];
     extraConfig = ''
       source-file ~/.config/tmux-extra/tmux.conf
@@ -377,6 +397,7 @@ in
 
   xdg.configFile = {
     "nvim/lua".source = mkSymlink "nvim/lua";
+    "nvim/ftdetect".source = mkSymlink "nvim/ftdetect";
     "tmux-extra".source = mkSymlink "tmux";
     "yazi".source = mkSymlink "yazi";
     "btop".source = mkSymlink "btop";

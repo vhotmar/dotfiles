@@ -1,0 +1,44 @@
+#!/usr/bin/env -S deno run --allow-run --allow-env --allow-read --allow-net --allow-sys
+
+import $ from "jsr:@david/dax";
+import { object, or } from "jsr:@optique/core/constructs";
+import { command, constant } from "jsr:@optique/core/primitives";
+import { run } from "jsr:@optique/run";
+
+Deno.chdir(`${Deno.env.get("HOME")}/main/dotfiles`);
+
+async function rebuild() {
+  switch (Deno.build.os) {
+    case "darwin":
+      console.log("Rebuilding darwin configuration...");
+      await $`sudo darwin-rebuild switch --flake .#macbook`;
+      break;
+    case "linux":
+      console.log("Switching home-manager configuration (lima)...");
+      await $`home-manager switch --flake .#vhotmar@lima`;
+      break;
+    default:
+      console.error(`Unsupported platform: ${Deno.build.os}`);
+      Deno.exit(1);
+  }
+}
+
+const parser = or(
+  command("rebuild", object({ action: constant("rebuild") })),
+  command("update", object({ action: constant("update") })),
+);
+
+const result = run(parser, { args: Deno.args });
+
+switch (result.action) {
+  case "update":
+    console.log("Updating flake inputs...");
+    await $`nix flake update`;
+    await rebuild();
+    break;
+  case "rebuild":
+    await rebuild();
+    break;
+}
+
+console.log("Done!");

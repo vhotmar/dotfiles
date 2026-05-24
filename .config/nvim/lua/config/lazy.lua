@@ -59,6 +59,7 @@ require("lazy").setup {
     { import = "lazyvim.plugins.extras.lang.gleam" },
     -- { import = "lazyvim.plugins.extras.lang.haskell" },
     { import = "lazyvim.plugins.extras.lang.helm" },
+    { import = "lazyvim.plugins.extras.lang.lean" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
     { import = "lazyvim.plugins.extras.lang.nix" },
     { import = "lazyvim.plugins.extras.lang.nushell" },
