@@ -3,25 +3,20 @@
   config,
   pkgs,
   lib,
+  host,
   ...
 }:
 
 let
-  username = "vhotmar";
+  username = host.username;
 in
 {
-  # ══════════════════════════════════════════════════════════════════════════════
-  # NIX SETTINGS
-  # ══════════════════════════════════════════════════════════════════════════════
-
   ids.gids.nixbld = 30000;
 
-  nix = {
+  determinateNix = {
     enable = true;
-    package = pkgs.nixVersions.latest;
 
-    settings = {
-      experimental-features = "nix-command flakes";
+    customSettings = {
       trusted-users = [
         "root"
         username
@@ -41,19 +36,25 @@ in
         "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
       ];
     };
-
-    gc = {
-      automatic = true;
-      interval = {
-        Day = 7;
-      };
-      options = "--delete-older-than 30d";
-    };
   };
 
-  # ══════════════════════════════════════════════════════════════════════════════
-  # SYSTEM PACKAGES
-  # ══════════════════════════════════════════════════════════════════════════════
+  # Managed by nix-homebrew
+
+  homebrew = {
+    enable = true;
+
+    taps = builtins.attrNames config.nix-homebrew.taps;
+
+    casks = [
+      "hammerspoon"
+    ];
+
+    onActivation = {
+      cleanup = "zap"; # remove casks/brews no longer declared here
+      autoUpdate = true;
+      upgrade = true;
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     nixfmt
@@ -68,10 +69,6 @@ in
     zsh
     fish
   ];
-
-  # ══════════════════════════════════════════════════════════════════════════════
-  # FONTS
-  # ══════════════════════════════════════════════════════════════════════════════
 
   environment.variables = {
     LOG_ICONS = "true";
@@ -89,10 +86,6 @@ in
     nerd-fonts.fira-code
     nerd-fonts.iosevka
   ];
-
-  # ══════════════════════════════════════════════════════════════════════════════
-  # PROGRAMS
-  # ══════════════════════════════════════════════════════════════════════════════
 
   programs.fish = {
     enable = true;
@@ -114,10 +107,6 @@ in
     enable = true;
     enableSSHSupport = true;
   };
-
-  # ══════════════════════════════════════════════════════════════════════════════
-  # LAUNCH AGENTS
-  # ══════════════════════════════════════════════════════════════════════════════
 
   launchd.user.agents.yknotify = {
     serviceConfig = {
@@ -141,19 +130,22 @@ in
     '';
   };
 
-  # ══════════════════════════════════════════════════════════════════════════════
-  # USERS
-  # ══════════════════════════════════════════════════════════════════════════════
-
   users.users.${username} = {
     name = username;
     home = "/Users/${username}";
   };
 
-  # ══════════════════════════════════════════════════════════════════════════════
-  # SYSTEM
-  # ══════════════════════════════════════════════════════════════════════════════
-
   system.stateVersion = 6;
   system.primaryUser = username;
+
+  system.keyboard = {
+    enableKeyMapping = true;
+    remapCapsLockToControl = true;
+  };
+
+  system.defaults.CustomUserPreferences = {
+    "org.hammerspoon.Hammerspoon" = {
+      MJConfigFile = "~/.config/hammerspoon/init.lua";
+    };
+  };
 }

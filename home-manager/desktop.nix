@@ -151,4 +151,5 @@ in
   programs.alacritty.enable = true;
 
   xdg.configFile."alacritty".source = mkSymlink "alacritty";
+  xdg.configFile."hammerspoon".source = mkSymlink "hammerspoon";
 }

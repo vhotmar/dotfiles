@@ -3,18 +3,18 @@
   config,
   pkgs,
   lib,
+  host,
   ...
 }:
 
 let
-  # User info - used in multiple places
   userFullName = "Vojtech Hotmar";
-  userEmail = "vojtech.hotmar@pm.me";
-  signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIkXgI1lA120aiO1HCysdk3YEihbYCKvbGpoA0etbJxu";
+  userEmail = host.email;
+  signingKey = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
 
   # Lazy symlink helpers - only evaluated when used in config section
   dotfilesPath = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles";
-  dotfilesPrivatePath = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles-private";
+  # dotfilesPrivatePath = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles-private";
   mkSymlink =
     path:
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles/.config/${path}";
@@ -384,11 +384,11 @@ in
       type = "git";
       path = "main/dotfiles";
     };
-    "dotfiles-private" = {
-      url = "git+ssh://git@github.com/vhotmar/dotfiles-private";
-      type = "git";
-      path = "main/dotfiles-private";
-    };
+    # "dotfiles-private" = {
+    #   url = "git+ssh://git@github.com/vhotmar/dotfiles-private";
+    #   type = "git";
+    #   path = "main/dotfiles-private";
+    # };
   };
 
   # ══════════════════════════════════════════════════════════════════════════════
@@ -416,6 +416,6 @@ in
   home.sessionPath = [
     "$HOME/main/bin"
     "${dotfilesPath}/.local/bin"
-    "${dotfilesPrivatePath}/.local/bin"
+    # "${dotfilesPrivatePath}/.local/bin"
   ];
 }

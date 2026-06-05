@@ -4,6 +4,19 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
+
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
     nix-darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -36,6 +49,10 @@
       nixpkgs,
       nix-darwin,
       home-manager,
+      determinate,
+      nix-homebrew,
+      homebrew-core,
+      homebrew-cask,
       fenix,
       claude-code-overlay,
       mac-app-util,
@@ -52,40 +69,70 @@
           };
           overlays = import ./overlays { inherit inputs; };
         };
+
+      mkDarwin =
+        host:
+        nix-darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          pkgs = mkPkgs "aarch64-darwin";
+          specialArgs = { inherit inputs host; };
+          modules = [
+            ./darwin/configuration.nix
+            determinate.darwinModules.default
+            nix-homebrew.darwinModules.nix-homebrew
+            {
+              nix-homebrew = {
+                enable = true;
+                user = host.username;
+                taps = {
+                  "homebrew/homebrew-core" = homebrew-core;
+                  "homebrew/homebrew-cask" = homebrew-cask;
+                };
+                mutableTaps = false;
+              };
+            }
+            mac-app-util.darwinModules.default
+            home-manager.darwinModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = { inherit host; };
+              home-manager.sharedModules = [ mac-app-util.homeManagerModules.default ];
+              home-manager.users.${host.username} = import ./home-manager/darwin.nix;
+            }
+          ];
+        };
     in
     {
-      # ══════════════════════════════════════════════════════════════════════════
-      # macOS (macbook)
-      # ══════════════════════════════════════════════════════════════════════════
-      darwinConfigurations."macbook" = nix-darwin.lib.darwinSystem {
-        system = "aarch64-darwin";
-        pkgs = mkPkgs "aarch64-darwin";
-        modules = [
-          ./darwin/configuration.nix
-          mac-app-util.darwinModules.default
-          home-manager.darwinModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.sharedModules = [ mac-app-util.homeManagerModules.default ];
-            home-manager.users.vhotmar = import ./home-manager/darwin.nix;
-          }
-        ];
+      darwinConfigurations."work" = mkDarwin {
+        username = "vhotmar";
+        email = "vojtech.hotmar@pm.me";
+        isWork = true;
       };
 
-      # ══════════════════════════════════════════════════════════════════════════
-      # Linux (unix-server) - standalone home-manager
-      # ══════════════════════════════════════════════════════════════════════════
+      darwinConfigurations."home" = mkDarwin {
+        username = "vhotmar";
+        email = "vojtech.hotmar@pm.me";
+        isWork = false;
+      };
+
       homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "x86_64-linux";
+        extraSpecialArgs.host = {
+          username = "vhotmar";
+          email = "vojtech.hotmar@pm.me";
+          isWork = false;
+        };
         modules = [ ./home-manager/linux.nix ];
       };
 
-      # ══════════════════════════════════════════════════════════════════════════
-      # Linux (Lima VM on aarch64-darwin host) - standalone home-manager
-      # ══════════════════════════════════════════════════════════════════════════
       homeConfigurations."vhotmar@lima" = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "aarch64-linux";
+        extraSpecialArgs.host = {
+          username = "vhotmar";
+          email = "vojtech.hotmar@pm.me";
+          isWork = false;
+        };
         modules = [ ./home-manager/lima.nix ];
       };
     };

@@ -3,14 +3,15 @@
   config,
   pkgs,
   lib,
+  host,
   ...
 }:
 
 {
   imports = [ ./common.nix ];
 
-  home.username = "vhotmar";
-  home.homeDirectory = "/home/vhotmar";
+  home.username = host.username;
+  home.homeDirectory = "/home/${host.username}";
 
   # Linux uses fewer packages - just the common suite
   # Add linux-specific packages here as needed

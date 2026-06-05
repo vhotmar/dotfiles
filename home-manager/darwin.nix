@@ -3,6 +3,7 @@
   config,
   pkgs,
   lib,
+  host,
   ...
 }:
 
@@ -12,8 +13,8 @@
     ./desktop.nix
   ];
 
-  home.username = lib.mkForce "vhotmar";
-  home.homeDirectory = lib.mkForce "/Users/vhotmar";
+  home.username = lib.mkForce host.username;
+  home.homeDirectory = lib.mkForce "/Users/${host.username}";
 
   home.packages = with pkgs; [
     # ── macOS-only packages ───────────────────────────────────────────────────

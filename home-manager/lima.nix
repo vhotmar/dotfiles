@@ -6,13 +6,14 @@
   config,
   pkgs,
   lib,
+  host,
   ...
 }:
 
 {
   imports = [ ./linux.nix ];
 
-  home.homeDirectory = lib.mkForce "/home/vhotmar.guest";
+  home.homeDirectory = lib.mkForce "/home/${host.username}.guest";
 
   home.mutableFile = lib.mkForce { };
 }
