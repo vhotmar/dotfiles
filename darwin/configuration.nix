@@ -51,6 +51,7 @@ in
 
     casks = [
       "hammerspoon"
+      "raycast"
     ];
 
     onActivation = {
