@@ -123,6 +123,7 @@
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };
+        extraModules = [ ./darwin/home.nix ];
       };
 
       homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
