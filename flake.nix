@@ -71,7 +71,10 @@
         };
 
       mkDarwin =
-        host:
+        {
+          host,
+          extraModules ? [ ],
+        }:
         nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           pkgs = mkPkgs "aarch64-darwin";
@@ -94,26 +97,32 @@
             mac-app-util.darwinModules.default
             home-manager.darwinModules.home-manager
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit host; };
-              home-manager.sharedModules = [ mac-app-util.homeManagerModules.default ];
-              home-manager.users.${host.username} = import ./home-manager/darwin.nix;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = { inherit host; };
+                sharedModules = [ mac-app-util.homeManagerModules.default ];
+                users.${host.username} = import ./home-manager/darwin.nix;
+              };
             }
-          ];
+          ]
+          ++ extraModules;
         };
     in
     {
       darwinConfigurations."work" = mkDarwin {
-        username = "vhotmar";
-        email = "vojtech.hotmar@pm.me";
-        isWork = true;
+        host = {
+          username = "vhotmar";
+          email = "vojtech.hotmar@pm.me";
+        };
+        extraModules = [ ./darwin/work.nix ];
       };
 
       darwinConfigurations."home" = mkDarwin {
-        username = "vhotmar";
-        email = "vojtech.hotmar@pm.me";
-        isWork = false;
+        host = {
+          username = "vhotmar";
+          email = "vojtech.hotmar@pm.me";
+        };
       };
 
       homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
@@ -121,7 +130,6 @@
         extraSpecialArgs.host = {
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
-          isWork = false;
         };
         modules = [ ./home-manager/linux.nix ];
       };
@@ -131,7 +139,6 @@
         extraSpecialArgs.host = {
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
-          isWork = false;
         };
         modules = [ ./home-manager/lima.nix ];
       };

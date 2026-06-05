@@ -11,6 +11,10 @@ let
   username = host.username;
 in
 {
+  imports = [
+    ./brave.nix
+  ];
+
   ids.gids.nixbld = 30000;
 
   determinateNix = {
