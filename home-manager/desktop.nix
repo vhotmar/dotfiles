@@ -1,6 +1,3 @@
-# home-manager/desktop.nix
-# Display-dependent config. Imported only on hosts with a GUI (i.e. not
-# headless servers or Lima VMs).
 {
   config,
   pkgs,
@@ -12,11 +9,6 @@ let
   mkSymlink =
     path:
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/main/dotfiles/.config/${path}";
-
-  # ── App-bundle plumbing for Alfred-launchable Alacritty wrappers ───────────
-  # mac-app-util (loaded at the flake level) makes Nix-installed .apps
-  # discoverable by LaunchServices/Spotlight/Alfred. The custom bundles below
-  # exist so Alfred has a per-variant icon to render in the Dock.
 
   alacrittyLogoSvg = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/alacritty/alacritty/v0.17.0/extra/logo/alacritty-term.svg";
@@ -37,10 +29,6 @@ let
       rsvg-convert -w 1024 -h 1024 src.svg -o "$out"
     '';
 
-  # Use macOS-native iconutil + imagemagick to produce a canonical .icns layout
-  # (Apple's preferred sizes + @2x variants). libicns/png2icns produced an icon
-  # whose "is32" 16x16 entry came first, which Spotlight/Alfred render fine for
-  # large surfaces (Dock, Cmd-Tab) but incorrectly for small ones.
   pngToIcns =
     name: png:
     pkgs.runCommand "${name}.icns" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
@@ -60,12 +48,18 @@ let
       slug,
       bundleId,
       icon,
-      command,
+      target, # store-path executable the wrapper execs
+      flags ? "", # extra args, whitespace-split, prepended before caller args
+      pathDirs ? [ ], # dirs prefixed onto PATH at launch
     }:
     let
       icns = pngToIcns slug icon;
+      pathArg = lib.optionalString (
+        pathDirs != [ ]
+      ) "--prefix PATH : ${lib.concatStringsSep ":" pathDirs}";
+      flagsArg = lib.optionalString (flags != "") "--add-flags ${lib.escapeShellArg flags}";
     in
-    pkgs.runCommand "${slug}-app" { } ''
+    pkgs.runCommand "${slug}-app" { nativeBuildInputs = [ pkgs.makeBinaryWrapper ]; } ''
       app="$out/Applications/${name}.app"
       mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
       cp ${icns} "$app/Contents/Resources/icon.icns"
@@ -83,11 +77,7 @@ let
         <key>LSUIElement</key><false/>
       </dict></plist>
       PLISTEOF
-      cat > "$app/Contents/MacOS/run" <<'RUNEOF'
-      #!${pkgs.bash}/bin/bash
-      ${command}
-      RUNEOF
-      chmod +x "$app/Contents/MacOS/run"
+      makeWrapper ${target} "$app/Contents/MacOS/run" ${pathArg} ${flagsArg}
     '';
 
   alacrittyPng = svgToPng {
@@ -100,29 +90,38 @@ let
     name = "alacritty-kdev-icon";
     svg = alacrittyLogoSvg;
     substitutions = [
-      { from = "#ec2802"; to = "#cba6f7"; } # flame start  -> Mocha mauve
-      { from = "#fcb200"; to = "#b4befe"; } # flame end    -> Mocha lavender
-      { from = "#14232b"; to = "#1e1e2e"; } # term body    -> Mocha base
-      { from = "#069efe"; to = "#89b4fa"; } # accent       -> Mocha blue
+      {
+        from = "#ec2802";
+        to = "#cba6f7";
+      } # flame start  -> Mocha mauve
+      {
+        from = "#fcb200";
+        to = "#b4befe";
+      } # flame end    -> Mocha lavender
+      {
+        from = "#14232b";
+        to = "#1e1e2e";
+      } # term body    -> Mocha base
+      {
+        from = "#069efe";
+        to = "#89b4fa";
+      } # accent       -> Mocha blue
     ];
   };
 
   alacrittyBin = "${pkgs.alacritty}/Applications/Alacritty.app/Contents/MacOS/alacritty";
 
-  # Spotlight/Alfred launch via mac-app-util's AppleScript trampoline, which
-  # inherits launchd's minimal PATH (/usr/bin:/bin:...). alacritty's
-  # `program = "fish"` config relies on PATH lookup, so it can't find the
-  # shell and exits silently. Inject the user's profile dirs the same way
-  # `.local/bin/alacritty-kdev` does.
   alacrittyLocal = mkAppBundle {
     name = "Alacritty Local";
     slug = "alacritty-local";
     bundleId = "local.vhotmar.alacritty";
     icon = alacrittyPng;
-    command = ''
-      export PATH="/etc/profiles/per-user/${config.home.username}/bin:/run/current-system/sw/bin:$PATH"
-      exec ${alacrittyBin} --working-directory "$HOME" "$@"
-    '';
+    target = alacrittyBin;
+    pathDirs = [
+      "/etc/profiles/per-user/${config.home.username}/bin"
+      "/run/current-system/sw/bin"
+    ];
+    flags = "--working-directory ${config.home.homeDirectory}";
   };
 
   alacrittyKdev = mkAppBundle {
@@ -130,16 +129,14 @@ let
     slug = "alacritty-kdev";
     bundleId = "local.vhotmar.alacritty-kdev";
     icon = alacrittyKdevPng;
-    command = ''exec "${config.home.homeDirectory}/main/dotfiles/.local/bin/alacritty-kdev" "$@"'';
+    target = "${pkgs.bash}/bin/bash";
+    flags = "${config.home.homeDirectory}/main/dotfiles/.local/bin/alacritty-kdev";
   };
 in
 {
   home.packages = with pkgs; [
     ueberzugpp
 
-    # Thin wrapper so `alacritty-kdev` is on PATH for non-login-shell
-    # callers (Alfred, launchd, etc). The real script stays in
-    # .local/bin so edits don't require a home-manager rebuild.
     (writeShellScriptBin "alacritty-kdev" ''
       exec "${config.home.homeDirectory}/main/dotfiles/.local/bin/alacritty-kdev" "$@"
     '')
