@@ -152,4 +152,12 @@ in
       MJConfigFile = "~/.config/hammerspoon/init.lua";
     };
   };
+
+  local.brave.extensions = {
+    # Kagi Search for Chrome
+    "cdglnehniifkbagbbombnjghhcihifij" = {
+      installation_mode = "normal_installed";
+      update_url = "https://clients2.google.com/service/update2/crx";
+    };
+  };
 }
