@@ -112,6 +112,7 @@
     {
       darwinConfigurations."work" = mkDarwin {
         host = {
+          profile = "work";
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };
@@ -120,6 +121,7 @@
 
       darwinConfigurations."home" = mkDarwin {
         host = {
+          profile = "home";
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };
@@ -129,6 +131,7 @@
       homeConfigurations."vhotmar@unix-server" = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "x86_64-linux";
         extraSpecialArgs.host = {
+          profile = "vhotmar@unix-server";
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };
@@ -138,6 +141,7 @@
       homeConfigurations."vhotmar@lima" = home-manager.lib.homeManagerConfiguration {
         pkgs = mkPkgs "aarch64-linux";
         extraSpecialArgs.host = {
+          profile = "vhotmar@lima";
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };

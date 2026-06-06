@@ -396,6 +396,10 @@ in
   # ══════════════════════════════════════════════════════════════════════════════
 
   xdg.configFile = {
+    # Record the active flake profile so the `dotfiles` script can detect
+    # which configuration to rebuild without hardcoding it per machine.
+    "dotfiles/profile".text = "${host.profile}\n";
+
     "nvim/lua".source = mkSymlink "nvim/lua";
     "nvim/ftdetect".source = mkSymlink "nvim/ftdetect";
     "tmux-extra".source = mkSymlink "tmux";

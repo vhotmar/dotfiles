@@ -5,17 +5,38 @@ import { object, or } from "jsr:@optique/core/constructs";
 import { command, constant } from "jsr:@optique/core/primitives";
 import { run } from "jsr:@optique/run";
 
-Deno.chdir(`${Deno.env.get("HOME")}/main/dotfiles`);
+const HOME = Deno.env.get("HOME");
+
+Deno.chdir(`${HOME}/main/dotfiles`);
+
+async function resolveProfile() {
+  const fromEnv = Deno.env.get("DOTFILES_PROFILE");
+  if (fromEnv) return fromEnv.trim();
+
+  const profilePath = `${HOME}/.config/dotfiles/profile`;
+  try {
+    return (await Deno.readTextFile(profilePath)).trim();
+  } catch {
+    console.error(
+      `No profile found at ${profilePath}.\n` +
+      `For the first build on this machine, set DOTFILES_PROFILE, e.g.\n` +
+      `  DOTFILES_PROFILE=home dotfiles rebuild\n` +
+      `After a successful build it is recorded automatically.`,
+    );
+    Deno.exit(1);
+  }
+}
 
 async function rebuild() {
+  const profile = await resolveProfile();
   switch (Deno.build.os) {
     case "darwin":
-      console.log("Rebuilding darwin configuration...");
-      await $`sudo darwin-rebuild switch --flake .#macbook`;
+      console.log(`Rebuilding darwin configuration (.#${profile})...`);
+      await $`sudo darwin-rebuild switch --flake .#${profile}`;
       break;
     case "linux":
-      console.log("Switching home-manager configuration (lima)...");
-      await $`home-manager switch --flake .#vhotmar@lima`;
+      console.log(`Switching home-manager configuration (.#${profile})...`);
+      await $`home-manager switch --flake .#${profile}`;
       break;
     default:
       console.error(`Unsupported platform: ${Deno.build.os}`);
