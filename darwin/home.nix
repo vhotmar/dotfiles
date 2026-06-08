@@ -4,6 +4,8 @@
   homebrew.casks = [
     "proton-mail"
     "proton-pass"
+    "claude"
+    "signal"
   ];
 
   local.brave.extensions = {
