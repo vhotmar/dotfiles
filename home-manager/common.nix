@@ -83,6 +83,7 @@ in
     fluxcd
     dive
     podman
+    podman-compose
     kubernetes-helm
 
     # ── System & Utils ────────────────────────────────────────────────────────
