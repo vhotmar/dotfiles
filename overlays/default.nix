@@ -14,6 +14,24 @@ let
     direnv = prev.direnv.overrideAttrs (_: { doCheck = false; });
   };
 
+  # helm 4.2.0's checkPhase does a substituteInPlace on
+  # cmd/helm/dependency_build_test.go, which no longer exists in this release,
+  # so the build aborts during tests. Helm's tests run upstream; skip them here.
+  helmOverlay = final: prev: {
+    kubernetes-helm = prev.kubernetes-helm.overrideAttrs (_: { doCheck = false; });
+  };
+
+  # parallel-full pulls in perlPackages.DBDCSV, whose t/70_csv.t aborts under the
+  # Nix build sandbox ("Using data files in ... is unsafe and not allowed").
+  # Disable its checkPhase so parallel-full builds.
+  perlPackagesOverlay = final: prev: {
+    perlPackages = prev.perlPackages.overrideScope (
+      _: pprev: {
+        DBDCSV = pprev.DBDCSV.overrideAttrs (_: { doCheck = false; });
+      }
+    );
+  };
+
   # Custom vpn-slice with newer commit
   vpnSliceOverlay = final: prev: {
     vpn-slice-vhotmar = prev.vpn-slice.overrideAttrs (
@@ -54,6 +72,8 @@ in
   fenixOverlay
   claudeCodeOverlay
   direnvOverlay
+  helmOverlay
+  perlPackagesOverlay
   vpnSliceOverlay
   yknotifyOverlay
 ]
