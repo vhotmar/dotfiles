@@ -34,8 +34,6 @@
   ];
 
   home.sessionVariables = {
-    LIMA_HOME = "/Volumes/T7/lima";
-
     # The nix Rust toolchain has no libiconv in its linker path on darwin, so
     # any cdylib build fails with `ld: library not found for -liconv` (e.g.
     # parinfer-rust). Expose it globally so plain `cargo build` links.
