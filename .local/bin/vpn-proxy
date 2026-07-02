@@ -1,0 +1,44 @@
+#!/usr/bin/env fish
+set -l statefile /tmp/.vpn-proxy-state
+set -l proxyfile $HOME/.config/vpn-proxy/proxy
+set -l noproxyfile $HOME/.config/vpn-proxy/no-proxy
+
+set -l mode auto
+if set -q argv[1]
+    set mode $argv[1]
+end
+
+if test $mode = auto
+    if test -r $statefile; and test (cat $statefile) = Connected
+        set mode on
+    else
+        set mode off
+    end
+end
+
+set -l all_vars http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
+
+switch $mode
+    case on
+        if not test -r $proxyfile
+            echo "vpn-proxy: $proxyfile not found — create it (see header)" >&2
+            exit 1
+        end
+        set -l url "http://"(string trim < $proxyfile)
+        for v in http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
+            echo "set -gx $v $url"
+        end
+        set -l no localhost,127.0.0.1,::1
+        if test -r $noproxyfile
+            set no $no,(string trim < $noproxyfile)
+        end
+        echo "set -gx no_proxy $no"
+        echo "set -gx NO_PROXY $no"
+    case off
+        for v in $all_vars
+            echo "set -e $v"
+        end
+    case '*'
+        echo "vpn-proxy: unknown mode '$mode' (use on|off|auto)" >&2
+        exit 2
+end

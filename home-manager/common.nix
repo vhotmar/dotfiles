@@ -80,11 +80,14 @@ in
     k9s
     kind
     kubectl
+    kubelogin
+    kustomize
     fluxcd
     dive
     podman
     podman-compose
     kubernetes-helm
+    azure-cli
 
     # ── System & Utils ────────────────────────────────────────────────────────
     procs
@@ -110,7 +113,6 @@ in
     ast-grep
     claude-code
     codex
-    opencode
     github-copilot-cli
     proton-pass-cli
     jira-cli-go

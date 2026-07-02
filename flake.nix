@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
+    nixpkgs-stable.url = "github:nixos/nixpkgs/release-26.05";
+
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
