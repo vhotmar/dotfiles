@@ -112,6 +112,7 @@ in
     # ── Misc Tools ────────────────────────────────────────────────────────────
     ast-grep
     claude-code
+    pi-coding-agent
     codex
     github-copilot-cli
     proton-pass-cli
@@ -330,26 +331,28 @@ in
       "--no-separator"
     ];
 
-    fileWidgetOptions = [
+    fileWidget.options = [
       # Preview the contents of the selected file
       "--walker-skip .git,node_modules,target"
       "--preview 'bat --color=always --plain {}'"
       "--bind 'ctrl-/:change-preview-window(down|hidden|)'"
     ];
 
-    changeDirWidgetOptions = [
+    changeDirWidget.options = [
       # Preview the contents of the selected directory
       "--walker-skip .git,node_modules,target"
       "--preview 'eza -l --tree --level=2 --color=always {}'"
     ];
 
-    historyWidgetOptions = [
+    historyWidget.options = [
       "--preview 'echo {}' --preview-window up:3:hidden:wrap"
       "--bind 'ctrl-/:toggle-preview'"
       "--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'"
       "--color header:italic"
       "--header 'Press CTRL-Y to copy command into clipboard'"
     ];
+
+    programs.fzf.historyWidget.command = "";
   };
   programs.eza.enable = true;
 
