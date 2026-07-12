@@ -30,6 +30,27 @@ let
     );
   };
 
+  # TODO(remove once nixpkgs ld64 hardening is reverted):
+  #   nixpkgs enabled libc++ hardening in ld64 (the cctools linker) in PR #536363
+  #   ("glib: fix build on Darwin", merged 2026-06-29). On macOS Tahoe this makes
+  #   ld itself crash (Trace/BPT trap: 5 -> exit 133) while linking many packages,
+  #   including lima (#540426) and terminal-notifier (cf. noti #540408). Workaround:
+  #   link these with LLVM's lld instead of cctools ld, matching nixpkgs' own
+  #   per-package fixes (e.g. starship #540463).
+  #   Waiting on nixpkgs PR #536365 ("ld64: disable hardening again"); drop this
+  #   overlay once that reaches nixpkgs-unstable.
+  ld64HardeningWorkaroundOverlay = final: prev:
+    let
+      useLld = pkg: pkg.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.llvmPackages.lld ];
+        NIX_CFLAGS_LINK = "${old.NIX_CFLAGS_LINK or ""} -fuse-ld=lld";
+      });
+    in
+    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
+      lima = useLld prev.lima;
+      terminal-notifier = useLld prev.terminal-notifier;
+    };
+
   # yknotify: macOS notifications on YubiKey touch prompts
   yknotifyOverlay = final: prev: {
     yknotify = prev.buildGoModule {
@@ -56,5 +77,6 @@ in
   claudeCodeOverlay
   vpnSliceOverlay
   yknotifyOverlay
+  ld64HardeningWorkaroundOverlay
   stablePackagesOverlay
 ]

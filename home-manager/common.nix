@@ -351,9 +351,9 @@ in
       "--color header:italic"
       "--header 'Press CTRL-Y to copy command into clipboard'"
     ];
-
-    programs.fzf.historyWidget.command = "";
   };
+
+  programs.fzf.historyWidget.command = "";
   programs.eza.enable = true;
 
   programs.yazi = {
