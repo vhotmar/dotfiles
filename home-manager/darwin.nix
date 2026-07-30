@@ -11,6 +11,7 @@
   imports = [
     ./common.nix
     ./desktop.nix
+    ./llm.nix
   ];
 
   home.username = lib.mkForce host.username;

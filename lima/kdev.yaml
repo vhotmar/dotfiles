@@ -1,0 +1,126 @@
+# The "kdev" development VM.
+#
+#   limactl start --name=kdev --tty=false --timeout=60m lima/kdev.yaml
+#
+# Builds an UNENCRYPTED guest; the live kdev's LUKS root is converted afterwards
+# by lima/kdev-luks.md and unlocked with .local/bin/kdev-unlock.
+#
+# Lima re-runs the config captured at instance creation, not this file, so edits
+# here do not reach a running kdev — apply them to ~/.lima/kdev/lima.yaml too.
+
+minimumLimaVersion: 2.0.0
+
+base:
+  - template:_images/ubuntu-lts
+
+vmType: vz
+
+cpus: 8
+memory: "16GiB"
+disk: "200GiB"
+
+# Without this, x86_64 binaries fall back to QEMU user emulation (~10-20x
+# slower). Needs host Rosetta; Lima only warns when it is missing.
+vmOpts:
+  vz:
+    rosetta:
+      enabled: true
+      binfmt: true
+
+# Deliberately only the dotfiles repo, not all of ~: `writable: false` stops
+# writes, not reads, so mounting ~ would expose ~/.ssh and ~/.config/gh tokens
+# in plaintext and defeat the point of the VM as a boundary.
+mounts:
+  - location: "~/main/dotfiles"
+    writable: false
+
+containerd:
+  system: false
+  user: false
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if command -v git >/dev/null 2>&1 && command -v xz >/dev/null 2>&1; then
+        exit 0
+      fi
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y git xz-utils curl ca-certificates
+
+  # Upstream Nix, not Determinate: the vhotmar@lima profile has no determinate
+  # input, unlike the darwin configurations.
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if [ -e /nix/var/nix/profiles/default/bin/nix ]; then
+        exit 0
+      fi
+      curl -fsSL https://install.determinate.systems/nix \
+        | sh -s -- install linux --no-confirm
+
+  # lima.nix sets `home.mutableFile = mkForce {}` (its clone uses git+ssh and the
+  # VM has no key), so nothing else creates ~/main/dotfiles and every mkSymlink
+  # target under ~/.config would dangle.
+  - mode: user
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+      elif [ -e /nix/var/nix/profiles/default/etc/profile.d/nix.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix.sh
+      fi
+
+      # The host mount is preferred so unpushed commits come along too.
+      REPO="$HOME/main/dotfiles"
+      if [ ! -d "$REPO/.git" ]; then
+        mkdir -p "$HOME/main"
+        if [ -d /Users/vhotmar/main/dotfiles/.git ]; then
+          git clone /Users/vhotmar/main/dotfiles "$REPO"
+          git -C "$REPO" remote set-url origin https://github.com/vhotmar/dotfiles
+        else
+          git clone https://github.com/vhotmar/dotfiles "$REPO"
+        fi
+      fi
+
+      if [ -e "$HOME/.local/state/nix/profiles/home-manager" ]; then
+        exit 0
+      fi
+      GEN=$(nix build --no-link --print-out-paths \
+        "$REPO#homeConfigurations.\"vhotmar@lima\".activationPackage")
+      "$GEN"/activate
+
+probes:
+  - description: "nix to be installed"
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if ! timeout 900s bash -c "until [ -e /nix/var/nix/profiles/default/bin/nix ]; do sleep 5; done"; then
+        echo >&2 "nix was not installed"
+        exit 1
+      fi
+    hint: See "/var/log/cloud-init-output.log" in the guest
+
+  - description: "home-manager generation to be activated"
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if ! timeout 2400s bash -c "until [ -e ~/.local/state/nix/profiles/home-manager ]; do sleep 10; done"; then
+        echo >&2 "home-manager did not activate"
+        exit 1
+      fi
+    hint: See "/var/log/cloud-init-output.log" in the guest
+
+message: |
+  Attach with:
+    limactl shell kdev -- tmux new-session -A -s kdev
+  or open the Alacritty launcher:
+    ~/main/dotfiles/.local/bin/alacritty-kdev
+
+  The repo is cloned inside the VM at ~/main/dotfiles with an HTTPS origin;
+  switch it to SSH to push from here. `dotfiles rebuild` resolves to
+  .#vhotmar@lima.

@@ -2,9 +2,11 @@
 set -euo pipefail
 
 export PATH="/etc/profiles/per-user/vhotmar/bin:/run/current-system/sw/bin:$PATH"
-export LIMA_HOME="${LIMA_HOME:-/Volumes/T7/lima}"
+export LIMA_HOME="${LIMA_HOME:-$HOME/.lima}"
+
+SELF=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 exec alacritty \
   --title "kdev - lima" \
   --config-file ~/.config/alacritty/alacritty-kdev.toml \
-  -e limactl shell kdev -- tmux new-session -A -s kdev
+  -e bash -c "'$SELF/kdev-unlock' || { echo; read -rp 'kdev-unlock failed - press enter to close'; exit 1; }; exec limactl shell kdev -- tmux new-session -A -s kdev"

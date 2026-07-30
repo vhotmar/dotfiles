@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# kdev's LUKS root stops every boot in the initramfs, where dropbear listens on
+# the same port Lima forwards to sshd. Needs a TTY — cryptsetup reads the
+# passphrase from the terminal.
+set -euo pipefail
+
+export PATH="/etc/profiles/per-user/vhotmar/bin:/run/current-system/sw/bin:$PATH"
+export LIMA_HOME="${LIMA_HOME:-$HOME/.lima}"
+
+VM=kdev
+
+command -v nc >/dev/null || { echo "kdev-unlock: nc is required" >&2; exit 1; }
+
+if [ "$(limactl list "$VM" --format '{{.Status}}' 2>/dev/null)" != "Running" ]; then
+  echo "starting $VM..."
+  # blocks on its own probes until the root is unlocked, so background it
+  limactl start "$VM" >/dev/null 2>&1 &
+fi
+
+# An open port proves nothing — Lima binds it up front and dials the guest
+# lazily, so wait for a real banner. The port comes from Lima, not ssh.config,
+# which keeps a stale value across a stop.
+state=""
+for _ in $(seq 1 90); do
+  port=$(limactl list "$VM" --format '{{.SSHLocalPort}}' 2>/dev/null || true)
+  if [ -n "$port" ] && [ "$port" != "0" ]; then
+    banner=$(nc -w 3 127.0.0.1 "$port" </dev/null 2>/dev/null | head -1 || true)
+    case "$banner" in
+      *dropbear*) state=locked; break ;;
+      SSH-*) state=booted; break ;;
+    esac
+  fi
+  sleep 2
+done
+
+case "$state" in
+  booted) echo "$VM is already unlocked and booted"; exit 0 ;;
+  locked) ;;
+  *) echo "kdev-unlock: no ssh banner from $VM after 180s" >&2; exit 1 ;;
+esac
+
+# dropbear drops the connection the instant the root unlocks, so ssh exiting
+# 255 is the success path; any other non-zero is a real failure worth surfacing.
+rc=0
+ssh -p "$port" -i "$LIMA_HOME/_config/user" \
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  -o LogLevel=ERROR \
+  -t root@127.0.0.1 cryptroot-unlock || rc=$?
+if [ "$rc" -ne 0 ] && [ "$rc" -ne 255 ]; then
+  echo "kdev-unlock: cryptroot-unlock failed (exit $rc)" >&2
+  exit "$rc"
+fi
+
+echo "unlocked; waiting for $VM to finish booting..."
+for _ in $(seq 1 90); do
+  if limactl shell "$VM" -- true >/dev/null 2>&1; then
+    echo "$VM ready"
+    exit 0
+  fi
+  sleep 2
+done
+echo "kdev-unlock: timed out waiting for $VM to boot (ssh exit $rc)" >&2
+exit 1

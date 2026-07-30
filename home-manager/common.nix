@@ -134,6 +134,9 @@ in
       key = signingKey;
     };
 
+    # Per-directory identities stay out of the repo; a missing include is a no-op.
+    includes = [ { path = "${config.xdg.configHome}/git/local.inc"; } ];
+
     settings = {
       user = {
         name = userFullName;
