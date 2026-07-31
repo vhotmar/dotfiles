@@ -17,5 +17,11 @@
   # Add linux-specific packages here as needed
   home.packages = with pkgs; [
     # ── Linux-only packages ───────────────────────────────────────────────────
+
+    # Go's cgo hardcodes "gcc" as the default CC on Linux, so `go install`
+    # (e.g. Mason building gopls/delve) fails with only clang in PATH.
+    # hiPrio: gcc and clang both ship cc/c++/ld at priority 10, which would
+    # otherwise collide when building the profile.
+    (lib.hiPrio gcc)
   ];
 }
