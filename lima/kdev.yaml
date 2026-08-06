@@ -16,7 +16,7 @@ base:
 vmType: vz
 
 cpus: 8
-memory: "16GiB"
+memory: "24GiB"
 disk: "200GiB"
 
 # Without this, x86_64 binaries fall back to QEMU user emulation (~10-20x
@@ -33,6 +33,9 @@ vmOpts:
 mounts:
   - location: "~/main/dotfiles"
     writable: false
+  - location: "~/kdev-share"
+    mountPoint: "{{.Home}}/shared"
+    writable: true
 
 containerd:
   system: false
@@ -61,6 +64,14 @@ provision:
       fi
       curl -fsSL https://install.determinate.systems/nix \
         | sh -s -- install linux --no-confirm
+
+  # Without linger the user manager is torn down when the last session exits, so
+  # user units (and anything started under `limactl shell`) die on detach.
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      loginctl enable-linger vhotmar
 
   # lima.nix sets `home.mutableFile = mkForce {}` (its clone uses git+ssh and the
   # VM has no key), so nothing else creates ~/main/dotfiles and every mkSymlink
