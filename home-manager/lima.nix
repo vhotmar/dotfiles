@@ -35,4 +35,24 @@
       WantedBy = [ "sockets.target" ];
     };
   };
+
+  xdg.configFile."containers/policy.json".text = builtins.toJSON {
+    default = [
+      { type = "insecureAcceptAnything"; }
+    ];
+
+    transports = {
+      docker = {
+        "docker.io" = [
+          { type = "insecureAcceptAnything"; }
+        ];
+        "ghcr.io" = [
+          { type = "insecureAcceptAnything"; }
+        ];
+        "" = [
+          { type = "insecureAcceptAnything"; }
+        ];
+      };
+    };
+  };
 }
