@@ -12,6 +12,7 @@
     ./common.nix
     ./desktop.nix
     ./llm.nix
+    ./opencode.nix
   ];
 
   home.username = lib.mkForce host.username;

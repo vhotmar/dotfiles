@@ -11,9 +11,19 @@
 }:
 
 {
-  imports = [ ./linux.nix ];
+  imports = [
+    ./linux.nix
+    ./opencode.nix
+  ];
 
   home.homeDirectory = lib.mkForce "/home/${host.username}.guest";
+
+  # The MLX server runs on the macOS host and binds only its loopback. Lima's
+  # user-mode NAT resolves host.lima.internal to the gateway (192.168.5.2) and
+  # forwards to that loopback, so the guest is a client without the host
+  # listening on any LAN interface. Verified: a host service bound to
+  # 127.0.0.1 is reachable from here, one bound nowhere is not.
+  localLlm.host = "host.lima.internal";
 
   home.mutableFile = lib.mkForce { };
 

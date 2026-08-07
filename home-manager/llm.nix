@@ -10,22 +10,50 @@
 }:
 
 let
-  models = {
-    big = "mlx-community/Qwen3.6-35B-A3B-4bit"; # 19.00 GB — 35B MoE, 3B active
-    fast = "mlx-community/Qwen3.5-9B-4bit"; # 5.54 GB — 9B dense
-  };
-
-  defaultModel = "big";
-
-  host = "127.0.0.1";
-  port = "8080";
-
-  # Qwen's recommendations for the 3.5/3.6 family. presence_penalty (1.5 general,
-  # 0.0 coding) has no CLI flag — pass it per-request in the JSON body.
+  # mlx_lm.server's --temp/--top-k are only process-wide defaults, but any
+  # request can name a model from either family, so `llm` also sends the
+  # resolved family's numbers in the request body.
   sampling = {
-    general = "--temp 1.0 --top-p 0.95 --top-k 20 --min-p 0.0";
-    coding = "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.0";
+    # Qwen's recommendations for the 3.5/3.6 family. presence_penalty (1.5
+    # general, 0.0 coding) has no CLI flag — pass it per-request in the JSON body.
+    qwen = {
+      general = {
+        temperature = 1.0;
+        top_p = 0.95;
+        top_k = 20;
+        min_p = 0.0;
+      };
+      coding = {
+        temperature = 0.6;
+        top_p = 0.95;
+        top_k = 20;
+        min_p = 0.0;
+      };
+    };
+    # Google's published defaults for Gemma 4. No separate coding preset: it
+    # wants the same or *higher* temperature for code, the opposite of Qwen, so
+    # --coding is deliberately a no-op here.
+    gemma = {
+      general = {
+        temperature = 1.0;
+        top_p = 0.95;
+        top_k = 64;
+      };
+      coding = {
+        temperature = 1.0;
+        top_p = 0.95;
+        top_k = 64;
+      };
+    };
   };
+
+  inherit (config.localLlm) models defaultModel;
+  modelOrder = config.localLlm.order;
+
+  # Always loopback, never a LAN interface — the Lima guest reaches it through
+  # its NAT gateway instead (see localLlm.host in llm-models.nix).
+  host = "127.0.0.1";
+  port = config.localLlm.port;
 
   # Ceilings on everything that grows on top of the weights, so a long session
   # can't walk the machine into swap. mlx-lm parses the suffixes as decimal.
@@ -38,39 +66,132 @@ let
   decodeConcurrency = "4";
   promptConcurrency = "4";
 
-  resolveModel = ''
+  flagFor = {
+    temperature = "temp";
+    top_p = "top-p";
+    top_k = "top-k";
+    min_p = "min-p";
+  };
+
+  renderFlags =
+    preset:
+    lib.concatStringsSep " " (
+      lib.mapAttrsToList (k: v: "--${flagFor.${k}} ${builtins.toJSON v}") preset
+    );
+
+  # mlx_lm.chat only accepts --temp/--top-p, so the REPL samples a little wider
+  # than the server does.
+  chatKeys = [
+    "temperature"
+    "top_p"
+  ];
+  renderChatFlags = preset: renderFlags (lib.filterAttrs (k: _: lib.elem k chatKeys) preset);
+
+  # `*[Gg]emma*` — lets an unlisted repo id still land on its family's numbers.
+  familyGlob =
+    family:
+    let
+      head = lib.substring 0 1 family;
+    in
+    "*[${lib.toUpper head}${head}]${lib.substring 1 (lib.stringLength family) family}*";
+
+  samplingArms =
+    render:
+    lib.concatStringsSep "\n" (
+      lib.concatLists (
+        lib.mapAttrsToList (
+          family: presets:
+          lib.mapAttrsToList (
+            name: preset: "    ${family}/${name}) echo ${lib.escapeShellArg (render preset)} ;;"
+          ) presets
+        ) sampling
+      )
+    );
+
+  resolvers = ''
     resolve_model() {
       case "''${1:-${defaultModel}}" in
-        big)  echo "${models.big}"  ;;
-        fast) echo "${models.fast}" ;;
-        *)    echo "$1"             ;;
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (alias: m: "    ${alias}) echo \"${m.repo}\" ;;") models
+    )}
+        *) echo "$1" ;;
+      esac
+    }
+
+    # Keyed on the resolved repo, so a request naming a repo id directly still
+    # gets its family's numbers: exact matches first, then the family name
+    # anywhere in the repo path, then ${defaultModel}'s family.
+    resolve_family() {
+      case "$1" in
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (_: m: "    ${m.repo}) echo ${m.family} ;;") models
+    )}
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (family: _: "    ${familyGlob family}) echo ${family} ;;") sampling
+    )}
+        *) echo ${models.${defaultModel}.family} ;;
+      esac
+    }
+
+    # $1 = family, $2 = preset (general|coding)
+    sampling_flags() {
+      case "$1/$2" in
+    ${samplingArms renderFlags}
+      esac
+    }
+
+    sampling_chat_flags() {
+      case "$1/$2" in
+    ${samplingArms renderChatFlags}
+      esac
+    }
+
+    sampling_json() {
+      case "$1/$2" in
+    ${samplingArms builtins.toJSON}
       esac
     }
   '';
+
+  pad = width: s: s + lib.concatStrings (lib.genList (_: " ") (width - lib.stringLength s));
+
+  helpModels = lib.concatStringsSep "\n" (
+    map (
+      alias:
+      let
+        m = models.${alias};
+      in
+      "  ${pad 6 alias}${m.repo}  (${m.size}, ${m.desc})"
+    ) modelOrder
+  );
+
+  aliasList = lib.concatStringsSep "|" modelOrder;
 
   llm-serve = pkgs.writeShellApplication {
     name = "llm-serve";
     runtimeInputs = [ pkgs.python3Packages.mlx-lm ];
     text = ''
-      ${resolveModel}
+      ${resolvers}
 
-      preset="${sampling.general}"
+      preset=general
       model=""
 
       while [ $# -gt 0 ]; do
         case "$1" in
-          --coding) preset="${sampling.coding}"; shift ;;
+          --coding) preset=coding; shift ;;
           --help|-h)
             cat <<'EOF'
-      llm-serve [big|fast|<hf-repo>] [--coding] [-- <extra mlx_lm.server args>]
+      llm-serve [${aliasList}|<hf-repo>] [--coding] [-- <extra mlx_lm.server args>]
 
       Starts an OpenAI-compatible server on http://${host}:${port}/v1.
 
       The model named here is only the default; each request's "model" field is
       resolved as a HF repo id and swaps it out, so only one is ever resident.
 
-        big   ${models.big}  (19.00 GB)
-        fast  ${models.fast}  ( 5.54 GB)
+      ${helpModels}
+
+      --coding only shifts the Qwen models (temp 1.0 -> 0.6); Gemma 4 wants the
+      same temperature either way.
       EOF
             exit 0 ;;
           --) shift; break ;;
@@ -81,13 +202,17 @@ let
       done
 
       repo="$(resolve_model "$model")"
+      family="$(resolve_family "$repo")"
+      flags="$(sampling_flags "$family" "$preset")"
+
       echo "llm-serve: default=$repo  endpoint=http://${host}:${port}/v1" >&2
+      echo "llm-serve: sampling ($family/$preset): $flags" >&2
       echo "llm-serve: weights load on first request, not now." >&2
 
-      # Lowered from the stock 32/8: this GPU's resource_limit is 499000 *Metal
-      # resources* (a count, not bytes — see `mx.device_info()`), and since
-      # decode-concurrency preallocates that many KV slots, a 35B MoE leaves too
-      # little headroom for a long generation — it dies with
+      # Concurrency is lowered from the stock 32/8: this GPU's resource_limit is
+      # 499000 *Metal resources* (a count, not bytes — see `mx.device_info()`),
+      # and since decode-concurrency preallocates that many KV slots, a 35B MoE
+      # leaves too little headroom for a long generation — it dies with
       # "[metal::malloc] Resource limit exceeded".
       # shellcheck disable=SC2086
       exec mlx_lm.server \
@@ -99,7 +224,7 @@ let
         --prompt-cache-bytes ${promptCacheBytes} \
         --decode-concurrency ${decodeConcurrency} \
         --prompt-concurrency ${promptConcurrency} \
-        $preset \
+        $flags \
         "$@"
     '';
   };
@@ -113,7 +238,7 @@ let
       pkgs.jq
     ];
     text = ''
-      ${resolveModel}
+      ${resolvers}
 
       model=""
       think=false
@@ -122,14 +247,15 @@ let
       # drop "big" from the prompt AND load the 19 GB model.
       while [ $# -gt 0 ]; do
         case "$1" in
-          --big)    model="big";  shift ;;
-          --fast)   model="fast"; shift ;;
+      ${lib.concatStringsSep "\n" (
+        map (alias: "    ${pad 10 "--${alias})"} model=\"${alias}\"; shift ;;") modelOrder
+      )}
           -m|--model)
             if [ $# -lt 2 ]; then echo "llm: $1 needs a value" >&2; exit 2; fi
             model="$2"; shift 2 ;;
           --think)  think=true;  shift ;;
           --help|-h)
-            echo "llm [--big|--fast|-m REPO] [--think] <prompt...>" >&2
+            echo "llm [--${lib.concatStringsSep "|--" modelOrder}|-m REPO] [--think] <prompt...>" >&2
             echo "  one-shot completion; reads stdin when no prompt is given." >&2
             echo "  Uses the running llm-serve if there is one, else standalone." >&2
             echo "  Thinking is OFF by default; --think re-enables it." >&2
@@ -141,6 +267,7 @@ let
       done
 
       repo="$(resolve_model "$model")"
+      family="$(resolve_family "$repo")"
 
       if [ $# -eq 0 ]; then
         if [ -t 0 ]; then
@@ -157,10 +284,11 @@ let
         # whole budget in <think> and return empty `content`.
         resp="$(
           jq -n --arg m "$repo" --arg p "$prompt" --argjson think "$think" \
+                --argjson s "$(sampling_json "$family" general)" \
             '{model:$m,
               messages:[{role:"user",content:$p}],
               max_tokens:${cliMaxTokens},
-              chat_template_kwargs:{enable_thinking:$think}}' \
+              chat_template_kwargs:{enable_thinking:$think}} + $s' \
           | curl -sS -X POST "http://${host}:${port}/v1/chat/completions" \
               -H 'Content-Type: application/json' -d @-
         )"
@@ -188,13 +316,14 @@ let
       else
         echo "llm: no server on ${port}, loading standalone (start one with llm-serve)" >&2
         # Match the server path so piping `llm` gives the same payload either way.
+        # shellcheck disable=SC2046
         mlx_lm.generate \
           --model "$repo" \
           --prompt "$prompt" \
           --max-tokens ${cliMaxTokens} \
           --verbose False \
           --chat-template-config "$(jq -nc --argjson t "$think" '{enable_thinking:$t}')" \
-          ${sampling.general}
+          $(sampling_flags "$family" general)
       fi
     '';
   };
@@ -208,7 +337,7 @@ let
       pkgs.curl
     ];
     text = ''
-      ${resolveModel}
+      ${resolvers}
 
       # Only consume $1 as the model when it is not a flag, so extra mlx_lm.chat
       # options (--system-prompt, --seed, ...) still reach "$@".
@@ -221,18 +350,19 @@ let
         *) model="$1"; if [ $# -gt 0 ]; then shift; fi ;;
       esac
       repo="$(resolve_model "$model")"
+      family="$(resolve_family "$repo")"
 
       if curl -sf -m 2 "http://${host}:${port}/v1/models" >/dev/null 2>&1; then
         echo "llm-chat: warning — llm-serve is running; this loads a SECOND copy" >&2
         echo "          of the weights. Stop the server first to avoid swapping." >&2
       fi
 
+      # shellcheck disable=SC2046
       exec mlx_lm.chat \
         --model "$repo" \
         --max-kv-size 16384 \
         --max-tokens ${maxTokens} \
-        --temp 1.0 \
-        --top-p 0.95 \
+        $(sampling_chat_flags "$family" general) \
         "$@"
     '';
   };
@@ -245,9 +375,13 @@ let
     ];
     text = ''
       case "''${1:-all}" in
-        big)  repos=("${models.big}") ;;
-        fast) repos=("${models.fast}") ;;
-        all)  repos=("${models.fast}" "${models.big}") ;;
+      ${lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (alias: m: "  ${pad 7 "${alias})"} repos=(\"${m.repo}\") ;;") models
+      )}
+        # Smallest first, so a slow link still leaves something usable early.
+        all)  repos=(${
+          lib.concatStringsSep " " (map (alias: "\"${models.${alias}.repo}\"") (lib.reverseList modelOrder))
+        }) ;;
         # mlx_lm.manage raises CacheNotFound instead of reporting "nothing cached".
         list)
           mkdir -p "''${HF_HUB_CACHE:-''${HOME}/.cache/huggingface/hub}"
@@ -264,6 +398,8 @@ let
   };
 in
 {
+  imports = [ ./llm-models.nix ];
+
   home.packages = [
     pkgs.python3Packages.mlx-lm
     llm-serve
