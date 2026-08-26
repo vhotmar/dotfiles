@@ -19,6 +19,14 @@ let
     };
   };
 
+  # Bun 1.4.2 makes OpenCode 1.18.30 fail before reaching any provider while
+  # building the system prompt. Use the same OpenCode release from the last
+  # nixpkgs revision with Bun 1.3.13.
+  opencodePinnedOverlay = final: prev: {
+    opencode =
+      inputs.nixpkgs-opencode.legacyPackages.${prev.stdenv.hostPlatform.system}.opencode;
+  };
+
   # Custom vpn-slice with newer commit
   vpnSliceOverlay = final: prev: {
     vpn-slice-vhotmar = prev.vpn-slice.overrideAttrs (
@@ -54,6 +62,64 @@ let
       };
     };
   };
+
+  qmdOverlay =
+    final: prev:
+    let
+      upstream = inputs.qmd.packages.${prev.stdenv.hostPlatform.system}.default;
+      isAarch64Linux = prev.stdenv.hostPlatform.system == "aarch64-linux";
+
+      # Upstream's flake leaves the aarch64-linux node_modules hash as
+      # lib.fakeHash, and that binding can't be overridden from outside, so the
+      # fixed-output step is mirrored here for that system only. The hash is
+      # tied to the qmd lockfile and to the bun that runs `bun install`, so it
+      # needs re-pinning when either moves. Drop once upstream pins the hash.
+      nodeModules = prev.stdenvNoCC.mkDerivation {
+        pname = "qmd-node-modules";
+        inherit (upstream) version;
+        src = inputs.qmd;
+        impureEnvVars = prev.lib.fetchers.proxyImpureEnvVars ++ [
+          "GIT_PROXY_COMMAND"
+          "SOCKS_SERVER"
+        ];
+        nativeBuildInputs = [ prev.bun ];
+        dontConfigure = true;
+        buildPhase = ''
+          export HOME=$(mktemp -d)
+          bun install --backend copyfile --frozen-lockfile --ignore-scripts --no-progress --production
+        '';
+        installPhase = ''
+          mkdir -p $out
+          cp -R node_modules $out/
+        '';
+        dontFixup = true;
+        outputHash = "sha256-DGl1qSb25R2aGYK7UXFgjWUkxPpko5V92nRR3XI389c=";
+        outputHashAlgo = "sha256";
+        outputHashMode = "recursive";
+      };
+    in
+    {
+      qmd = upstream.overrideAttrs (
+        _:
+        prev.lib.optionalAttrs isAarch64Linux {
+          buildPhase = ''
+            export HOME=$(mktemp -d)
+            cp -R ${nodeModules}/node_modules ./
+            chmod -R u+w node_modules
+            (cd node_modules/better-sqlite3 && node-gyp rebuild --release)
+          '';
+        }
+        // prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
+          # The wrapper exports LD_LIBRARY_PATH with the Nix glibc, which breaks
+          # every host binary qmd spawns on a non-NixOS host (the Lima guest is
+          # Ubuntu with a newer glibc). sqlite and libstdc++ are all the native
+          # modules need.
+          postFixup = ''
+            sed -i 's|:${prev.stdenv.cc.libc.out}/lib||' $out/bin/qmd
+          '';
+        }
+      );
+    };
 
   # mlx with a working Metal backend.
   #
@@ -148,6 +214,8 @@ in
   codexCliOverlay
   vpnSliceOverlay
   yknotifyOverlay
+  qmdOverlay
   mlxMetalOverlay
   stablePackagesOverlay
+  opencodePinnedOverlay
 ]

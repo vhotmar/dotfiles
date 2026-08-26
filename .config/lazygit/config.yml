@@ -1,6 +1,5 @@
 git:
   overrideGpg: true
-
 gui:
   theme:
     activeBorderColor:
@@ -22,6 +21,5 @@ gui:
       - "#c6d0f5"
     searchingActiveBorderColor:
       - "#e5c890"
-
-  authorColors:
-    "*": "#babbf1"
+    authorColors:
+      "*": "#babbf1"

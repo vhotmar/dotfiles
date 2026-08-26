@@ -72,6 +72,7 @@ in
     yq-go
     jless
     csvtool
+    xq-xml
 
     # ── Git ───────────────────────────────────────────────────────────────────
     jujutsu
@@ -88,6 +89,8 @@ in
     podman-compose
     kubernetes-helm
     azure-cli
+    apko
+    melange
 
     # ── System & Utils ────────────────────────────────────────────────────────
     procs
@@ -104,7 +107,7 @@ in
     gnused
 
     # ── Security ──────────────────────────────────────────────────────────────
-    python312Packages.keyring
+    stable.python312Packages.keyring
     openssh
     libfido2
     yubikey-manager
@@ -118,6 +121,7 @@ in
     proton-pass-cli
     jira-cli-go
     sshpass
+    qmd
   ];
 
   # ══════════════════════════════════════════════════════════════════════════════
@@ -409,6 +413,7 @@ in
     # which configuration to rebuild without hardcoding it per machine.
     "dotfiles/profile".text = "${host.profile}\n";
 
+    "fish/functions/llm-pace.fish".source = mkSymlink "fish/functions/llm-pace.fish";
     "nvim/lua".source = mkSymlink "nvim/lua";
     "nvim/ftdetect".source = mkSymlink "nvim/ftdetect";
     "tmux-extra".source = mkSymlink "tmux";
