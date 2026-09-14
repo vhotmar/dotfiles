@@ -53,6 +53,7 @@ in
       "hammerspoon"
       "raycast"
       "rectangle"
+      "alt-tab"
     ];
 
     onActivation = {

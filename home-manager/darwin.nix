@@ -13,31 +13,34 @@
     ./desktop.nix
   ];
 
-  home.username = lib.mkForce host.username;
-  home.homeDirectory = lib.mkForce "/Users/${host.username}";
+  home = {
+    username = lib.mkForce host.username;
+    homeDirectory = lib.mkForce "/Users/${host.username}";
 
-  home.packages = with pkgs; [
-    # ── macOS-only packages ───────────────────────────────────────────────────
-    pngpaste
-    powershell
-    kdoctor
-    openconnect
-    vpn-slice-vhotmar
-    oauth2c
-    rust-script
-    rqbit
-    yknotify
-    terminal-notifier
-    lima
-    # azure-cli  # disabled in current config
-  ];
+    packages = with pkgs; [
+      # ── macOS-only packages ───────────────────────────────────────────────────
+      pngpaste
+      powershell
+      kdoctor
+      openconnect
+      vpn-slice-vhotmar
+      oauth2c
+      rust-script
+      rqbit
+      yknotify
+      terminal-notifier
+      lima
+      # azure-cli  # disabled in current config
+      # ollama     # disabled in current config
+    ];
 
-  home.sessionVariables = {
-    # The nix Rust toolchain has no libiconv in its linker path on darwin, so
-    # any cdylib build fails with `ld: library not found for -liconv` (e.g.
-    # parinfer-rust). Expose it globally so plain `cargo build` links.
-    # See https://github.com/nix-community/home-manager/issues/3482
-    LIBRARY_PATH = lib.makeLibraryPath [ pkgs.libiconv ];
+    sessionVariables = {
+      # The nix Rust toolchain has no libiconv in its linker path on darwin, so
+      # any cdylib build fails with `ld: library not found for -liconv` (e.g.
+      # parinfer-rust). Expose it globally so plain `cargo build` links.
+      # See https://github.com/nix-community/home-manager/issues/3482
+      LIBRARY_PATH = lib.makeLibraryPath [ pkgs.libiconv ];
+    };
   };
 
   programs.rbenv = {
