@@ -4,6 +4,10 @@ let
 
   claudeCodeOverlay = inputs.claude-code-overlay.overlays.default;
 
+  codexCliOverlay = final: _prev: {
+    codex = inputs.codex-cli-nix.packages.${final.stdenv.hostPlatform.system}.default;
+  };
+
   stablePackagesOverlay = final: prev: {
     stable = import inputs.nixpkgs-stable {
       inherit (final) system;
@@ -141,6 +145,7 @@ in
 [
   fenixOverlay
   claudeCodeOverlay
+  codexCliOverlay
   vpnSliceOverlay
   yknotifyOverlay
   mlxMetalOverlay

@@ -2,8 +2,6 @@
 set -euo pipefail
 
 export PATH="/etc/profiles/per-user/vhotmar/bin:/run/current-system/sw/bin:$PATH"
-export LIMA_HOME="${LIMA_HOME:-$HOME/.lima}"
-
 SELF=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 exec alacritty \

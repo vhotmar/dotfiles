@@ -39,6 +39,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    codex-cli-nix.url = "github:sadjow/codex-cli-nix";
+
     mac-app-util = {
       url = "github:hraban/mac-app-util";
       # inputs.nixpkgs.follows = "nixpkgs";
