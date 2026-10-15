@@ -11,8 +11,6 @@
   imports = [
     ./common.nix
     ./desktop.nix
-    ./llm.nix
-    ./opencode.nix
   ];
 
   home.username = lib.mkForce host.username;
@@ -32,7 +30,6 @@
     terminal-notifier
     lima
     # azure-cli  # disabled in current config
-    # ollama     # disabled in current config
   ];
 
   home.sessionVariables = {

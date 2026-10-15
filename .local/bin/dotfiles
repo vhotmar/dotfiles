@@ -27,6 +27,17 @@ async function resolveProfile() {
   }
 }
 
+const LOCAL_DIR = `${HOME}/main/dotfiles-local`;
+
+async function localOverride() {
+  try {
+    await Deno.stat(`${LOCAL_DIR}/default.nix`);
+    return ["--override-input", "local", `path:${LOCAL_DIR}`];
+  } catch {
+    return [];
+  }
+}
+
 async function rebuild() {
   const profile = await resolveProfile();
   switch (Deno.build.os) {
@@ -36,7 +47,7 @@ async function rebuild() {
       break;
     case "linux":
       console.log(`Switching home-manager configuration (.#${profile})...`);
-      await $`home-manager switch --flake .#${profile}`;
+      await $`home-manager switch --flake .#${profile} ${await localOverride()}`;
       break;
     default:
       console.error(`Unsupported platform: ${Deno.build.os}`);

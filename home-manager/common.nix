@@ -55,6 +55,7 @@ in
     lazygit
     jjui
     diffnav
+    delta
     difftastic
     clang
     statix
@@ -88,7 +89,8 @@ in
     podman
     podman-compose
     kubernetes-helm
-    azure-cli
+    # Unstable's fabric 3.2.3 breaks against invoke 3.x, so azure-cli can't build.
+    stable.azure-cli
     apko
     melange
 
@@ -137,9 +139,6 @@ in
       signByDefault = true;
       key = signingKey;
     };
-
-    # Per-directory identities stay out of the repo; a missing include is a no-op.
-    includes = [ { path = "${config.xdg.configHome}/git/local.inc"; } ];
 
     settings = {
       user = {
@@ -424,6 +423,7 @@ in
     "zellij".source = mkSymlink "zellij";
     "bat".source = mkSymlink "bat";
     "lazygit".source = mkSymlink "lazygit";
+    "diffnav".source = mkSymlink "diffnav";
     "doom".source = mkSymlink "doom";
   };
 

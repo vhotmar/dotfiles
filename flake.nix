@@ -6,11 +6,6 @@
 
     nixpkgs-stable.url = "github:nixos/nixpkgs/release-26.05";
 
-    # OpenCode 1.18.30 crashes while assembling every prompt when built with
-    # Bun 1.4.2. Keep the last nixpkgs revision using Bun 1.3.13 until
-    # https://github.com/anomalyco/opencode/issues/48965 is fixed upstream.
-    nixpkgs-opencode.url = "github:nixos/nixpkgs/abec4804aa876d4d80467d71d4727bf81c19e1c9";
-
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
@@ -49,6 +44,13 @@
     qmd = {
       url = "github:tobi/qmd";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Empty module; `dotfiles rebuild` overrides it with ~/main/dotfiles-local when that exists,
+    # so machine-specific config never enters this public repo or its lock file.
+    local = {
+      url = "path:./local-stub";
+      flake = false;
     };
 
     mac-app-util = {
@@ -159,7 +161,10 @@
           username = "vhotmar";
           email = "vojtech.hotmar@pm.me";
         };
-        modules = [ ./home-manager/lima.nix ];
+        modules = [
+          ./home-manager/lima.nix
+          "${inputs.local}/default.nix"
+        ];
       };
     };
 }
