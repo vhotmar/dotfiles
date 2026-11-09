@@ -7,7 +7,6 @@
     "claude"
     "signal"
     "spotify"
-    "todoist-app"
   ];
 
   local.brave.extensions = {

@@ -54,6 +54,7 @@ in
       "raycast"
       "rectangle"
       "alt-tab"
+      "todoist-app"
     ];
 
     onActivation = {
