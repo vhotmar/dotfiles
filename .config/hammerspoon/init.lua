@@ -54,6 +54,14 @@ controlEscapeCancelTap = hs.eventtap.new({
 end)
 controlEscapeCancelTap:start()
 
+-- kb-daily is installed only by darwin/work.nix.
+local kbDaily = "/etc/profiles/per-user/" .. os.getenv("USER") .. "/bin/kb-daily"
+if hs.fs.attributes(kbDaily) then
+	hs.hotkey.bind({ "cmd", "alt", "ctrl" }, "D", function()
+		hs.task.new(kbDaily, nil):start()
+	end)
+end
+
 hs.alert.show("Hammerspoon config loaded")
 
 hs.hotkey.bind({ "cmd", "alt", "ctrl" }, "R", function()

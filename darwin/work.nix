@@ -24,8 +24,33 @@ let
     printf 'open\nget %s\nd.add ProxyAutoConfigEnable # %s\nset %s\n' \
       "$KEY" "$enable" "$KEY" | "$SC"
   '';
+
+  kbRoot = "/home/vhotmar.guest/main/projects/dhl/personal-kb";
+
+  # Hammerspoon binds its hotkey only when this exists, which keeps it off hosts without the KB.
+  kbDaily = pkgs.writeShellScriptBin "kb-daily" ''
+    export PATH="/etc/profiles/per-user/${username}/bin:/run/current-system/sw/bin:/usr/bin:/bin"
+    notify() { osascript -e "display notification \"$1\" with title \"kb-daily\""; }
+
+    open -b local.vhotmar.alacritty-kdev
+    for _ in $(seq 1 15); do
+      limactl shell --workdir / kdev -- ${kbRoot}/bin/kb daily --popup
+      case $? in
+        0) exit 0 ;;
+        3) sleep 1 ;; # kdev terminal just launched; its tmux client is not attached yet
+        *)
+          notify "kdev is not up; unlock it in the kdev terminal, then retry"
+          exit 1
+          ;;
+      esac
+    done
+    notify "no tmux client attached in kdev"
+    exit 1
+  '';
 in
 {
+  home-manager.users.${username}.home.packages = [ kbDaily ];
+
   homebrew.casks = [
     "keepassxc"
     "bruno"
